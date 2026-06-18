@@ -30,6 +30,110 @@ body {
   color: var(--text-dark);
 }
 
+/* ── INTRO SCREEN ──────────────────────────────── */
+
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: var(--green-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.intro-organza {
+  position: absolute;
+  width: clamp(220px, 28vw, 400px);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  filter: brightness(1.0) contrast(1.05);
+}
+.intro-organza--tr { top: -2%;    right: -2%; }
+.intro-organza--bl { bottom: -2%; left: -2%;  transform: rotate(180deg); }
+
+.intro-content {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  padding: 2rem;
+}
+
+.intro-eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--cream);
+  opacity: 0.5;
+  margin-bottom: 1.8rem;
+}
+
+.intro-names {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  color: var(--cream);
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.intro-amp {
+  color: var(--gold);
+}
+
+.intro-rule {
+  width: 44px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.55;
+  margin: 1.4rem auto;
+}
+
+.intro-date {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+}
+
+.intro-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 3rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--cream);
+  opacity: 0.75;
+  transition: opacity 0.3s ease;
+}
+.intro-btn:hover { opacity: 1; }
+
+.intro-btn-text {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+}
+
+.intro-btn-line {
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
 /* ── ENVELOPE PAGE ─────────────────────────────── */
 
 .envelope-page {
@@ -79,17 +183,12 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, calc(-50% + 12px));
   width: min(760px, 88vw);
   opacity: 0;
-  z-index: 5;
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-
-.letter-card.visible {
-  opacity: 1;
+  z-index: 12; /* above envelope wrapper (z-index: 10) so it shows through on reveal */
   transform: translate(-50%, -50%);
 }
+
 
 /* Lace image — black background removed via canvas in script.js */
 .lace-frame {
@@ -126,13 +225,12 @@ body {
 .env-img-wrapper {
   position: relative;
   width: 100%;
-  cursor: pointer;
   z-index: 10;
   animation: floatImg 3.8s ease-in-out infinite;
 }
 
 .env-img-wrapper.open {
-  animation: openEnvelope 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: none; /* GSAP drives the opening sequence */
   pointer-events: none;
 }
 

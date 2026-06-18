@@ -1,3 +1,9 @@
+// ── GSAP setup ───────────────────────────────────────
+if (typeof gsap !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+  if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
+}
+
 // ── Remove white background from seal image ──────────
 
 function removeWhiteBg(imgEl, threshold) {
@@ -130,6 +136,8 @@ const musicBtn = document.getElementById('musicBtn');
 
 if (bgMusic) bgMusic.volume = 0.6;
 
+// Music is started from the intro screen "Begin" click
+
 function toggleMusic() {
   if (!bgMusic) return;
   if (bgMusic.paused) {
@@ -145,34 +153,192 @@ function toggleMusic() {
 
 if (musicBtn) musicBtn.addEventListener('click', toggleMusic);
 
-// ── Envelope opening animation ───────────────────────
+// ── Envelope entrance (called after intro screen dismisses) ──
+function playEntranceAnimations() {
+  if (typeof gsap === 'undefined') return;
 
-// Lock scroll until the envelope is opened
-document.documentElement.style.overflow = 'hidden';
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-const envelope    = document.getElementById('envelope');
-const letterCard  = document.getElementById('letterCard');
-const hint        = document.getElementById('hint');
-const mainNav     = document.getElementById('mainNav');
-const homeSection = document.getElementById('home');
+  document.querySelectorAll('.organza-drape').forEach(function (el, i) {
+    tl.from(el, { opacity: 0, scale: 0.88, duration: 1.4 }, 0.1 + i * 0.2);
+  });
 
-if (envelope) {
-  envelope.addEventListener('click', openEnvelope);
+  var eyebrowEl = document.querySelector('.envelope-eyebrow');
+  if (eyebrowEl) {
+    if (typeof SplitText !== 'undefined') {
+      var splitEyebrow = new SplitText(eyebrowEl, { type: 'chars' });
+      tl.from(splitEyebrow.chars, { opacity: 0, y: 14, stagger: 0.035, duration: 0.65 }, 0.5);
+    } else {
+      tl.from(eyebrowEl, { opacity: 0, y: 14, duration: 0.65 }, 0.5);
+    }
+  }
+
+  var envWrapper = document.getElementById('envelope');
+  if (envWrapper) {
+    tl.from(envWrapper, { opacity: 0, y: 60, duration: 1.1 }, 0.25);
+  }
+
+  var coupleEl = document.querySelector('.env-couple');
+  if (coupleEl) {
+    if (typeof SplitText !== 'undefined') {
+      var splitCouple = new SplitText(coupleEl, { type: 'chars' });
+      tl.from(splitCouple.chars, { opacity: 0, y: 10, stagger: 0.04, duration: 0.6 }, 1.1);
+    } else {
+      tl.from(coupleEl, { opacity: 0, y: 10, duration: 0.6 }, 1.1);
+    }
+  }
+
+  var envDateEl = document.querySelector('.env-wedding-date');
+  if (envDateEl) tl.from(envDateEl, { opacity: 0, y: 8, duration: 0.55 }, 1.55);
+
+  var hintEl = document.getElementById('hint');
+  if (hintEl) tl.from(hintEl, { opacity: 0, duration: 0.6 }, 1.85);
 }
 
-function openEnvelope() {
-  if (envelope.classList.contains('open')) return;
-  envelope.classList.add('open');
-  if (hint) hint.classList.add('hidden');
-  const envNames = document.querySelector('.env-names');
-  if (envNames) envNames.classList.add('hidden');
+// ── Intro screen ──────────────────────────────────────
+var introScreen = document.getElementById('intro');
+var introBtn    = document.getElementById('introBtn');
 
-  if (bgMusic) bgMusic.play().catch(function () {});
+if (typeof gsap !== 'undefined' && introScreen) {
+  document.fonts.ready.then(function () {
+    var itl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-  setTimeout(function () {
-    if (letterCard) letterCard.classList.add('visible');
-    document.documentElement.style.overflow = '';
-  }, 700);
+    var introEyebrowEl = document.querySelector('.intro-eyebrow');
+    var introNamesEl   = document.querySelector('.intro-names');
+    var introRuleEl    = document.querySelector('.intro-rule');
+    var introDateEl    = document.querySelector('.intro-date');
+
+    if (introEyebrowEl) itl.from(introEyebrowEl, { opacity: 0, y: 10, duration: 0.6 }, 0.3);
+
+    if (introNamesEl) {
+      if (typeof SplitText !== 'undefined') {
+        var splitIntro = new SplitText(introNamesEl, { type: 'chars' });
+        itl.from(splitIntro.chars, { opacity: 0, y: 22, stagger: 0.04, duration: 0.85 }, 0.5);
+      } else {
+        itl.from(introNamesEl, { opacity: 0, y: 22, duration: 0.85 }, 0.5);
+      }
+    }
+
+    if (introRuleEl) itl.from(introRuleEl, { scaleX: 0, transformOrigin: 'center', duration: 0.5 }, 1.0);
+    if (introDateEl) itl.from(introDateEl, { opacity: 0, duration: 0.5 }, 1.2);
+    // Note: introBtn is NOT animated — it stays visible so users can always see/click it
+  });
+}
+
+// Whole intro screen is clickable, not just the button
+if (introScreen) {
+  introScreen.addEventListener('click', function () {
+    // Start music — guaranteed to work after a real click
+    if (bgMusic) {
+      bgMusic.play().catch(function () {});
+      if (musicBtn) {
+        musicBtn.classList.remove('muted');
+        musicBtn.querySelector('.music-icon').textContent = '♪';
+      }
+    }
+
+    // Fade out intro then reveal envelope section
+    if (typeof gsap !== 'undefined') {
+      gsap.to(introScreen, {
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power2.inOut',
+        onComplete: function () {
+          introScreen.style.display = 'none';
+          playEntranceAnimations();
+        }
+      });
+    } else {
+      introScreen.style.display = 'none';
+    }
+  });
+}
+
+// ── Scroll-triggered envelope opening ────────────────
+
+var envelope    = document.getElementById('envelope');
+var letterCard  = document.getElementById('letterCard');
+var hint        = document.getElementById('hint');
+var mainNav     = document.getElementById('mainNav');
+var homeSection = document.getElementById('home');
+
+if (typeof gsap !== 'undefined' && envelope) {
+
+  // Give GSAP ownership of letter card centering from the start
+  if (letterCard) gsap.set(letterCard, { xPercent: -50, yPercent: -50 });
+
+  // Stop the CSS float animation immediately so GSAP owns the transform
+  gsap.set(envelope, { scale: 1 });
+
+  var letterContentPlayed = false;
+
+  // ── Letter content stagger animation (fires once, non-scrubbed) ──
+  function animateLetterContent() {
+    var ltl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+    var ornamentEl = document.querySelector('.letter-ornament');
+    var lineEls    = document.querySelectorAll('.letter-line');
+    var namesEl    = document.querySelector('.letter-names');
+    var dateEl     = document.querySelector('.letter-date');
+    var scrollHint = document.querySelector('.letter-hint');
+
+    if (ornamentEl) ltl.from(ornamentEl, { opacity: 0, y: 10, duration: 0.45 }, 0);
+    if (lineEls.length) ltl.from(lineEls, { scaleX: 0, transformOrigin: 'center', duration: 0.45, stagger: 0.15 }, 0.15);
+
+    if (namesEl) {
+      if (typeof SplitText !== 'undefined') {
+        var splitNames = new SplitText(namesEl, { type: 'chars' });
+        ltl.from(splitNames.chars, { opacity: 0, y: 16, stagger: 0.04, duration: 0.65 }, 0.3);
+      } else {
+        ltl.from(namesEl, { opacity: 0, y: 16, duration: 0.65 }, 0.3);
+      }
+    }
+    if (dateEl)     ltl.from(dateEl,     { opacity: 0, y: 8,  duration: 0.45 }, 0.8);
+    if (scrollHint) ltl.from(scrollHint, { opacity: 0,        duration: 0.45 }, 1.0);
+  }
+
+  // ── Pinned scroll timeline ────────────────────────────
+  var openTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#home',
+      start: 'top top',
+      end: '+=120%',        // 1.2 viewport heights of scroll space while pinned
+      pin: true,
+      scrub: 1.5,           // smooth lag behind scroll position
+      anticipatePin: 1,
+      onUpdate: function (self) {
+        // Fire letter content animations once letter card is fully in
+        if (!letterContentPlayed && self.progress >= 0.72) {
+          letterContentPlayed = true;
+          animateLetterContent();
+        }
+      }
+    }
+  });
+
+  // Phase 1 — Instantly fade peripheral elements as scroll begins
+  openTl.to(['.envelope-eyebrow', '#hint', '.env-names', '.organza-drape'],
+    { opacity: 0, duration: 0.18 }, 0);
+
+  // Phase 2 — Envelope zooms in, filling then overflowing viewport
+  openTl.to(envelope, {
+    scale: 7,
+    duration: 0.52,
+    ease: 'power2.in'
+  }, 0);
+
+  // Phase 3 — Envelope fades as it reaches maximum zoom
+  openTl.to(envelope, {
+    opacity: 0,
+    duration: 0.22
+  }, 0.46);
+
+  // Phase 4 — Letter card rises up behind the dissolving envelope
+  openTl.fromTo(letterCard,
+    { opacity: 0, y: 65 },
+    { opacity: 1, y: 0,  duration: 0.35 },
+    0.55
+  );
+
 }
 
 // ── Nav: show after scrolling past envelope section ───
