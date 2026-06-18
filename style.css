@@ -505,10 +505,12 @@ body {
 
 /* Names + date below envelope */
 .env-names {
+  position: absolute;
+  bottom: 3.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   text-align: center;
-  margin-top: 1rem;
-  margin-bottom: 2.5rem;
-  position: relative;
   z-index: 2;
   transition: opacity 0.4s ease;
 }
