@@ -832,6 +832,44 @@ nav.nav-visible {
   display: block;
 }
 
+/* ── MUSIC TOGGLE ───────────────────────────────── */
+
+.music-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(184,150,60,0.5);
+  background: rgba(28,53,32,0.85);
+  color: var(--gold);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  transition: background 0.25s, transform 0.2s;
+}
+
+.music-btn:hover {
+  background: rgba(28,53,32,1);
+  transform: scale(1.08);
+}
+
+.music-btn.muted .music-icon::after {
+  content: '✕';
+  position: absolute;
+  font-size: 0.55rem;
+  top: 7px;
+  right: 7px;
+  color: var(--maroon);
+}
+
+.music-btn { position: fixed; }
+
 /* ── FOOTER ─────────────────────────────────────── */
 
 footer {

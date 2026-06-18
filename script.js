@@ -84,6 +84,28 @@ document.querySelectorAll('.lace-deco').forEach(function (el) {
   removeBlackBg(el, 60);
 });
 
+// ── Background music ─────────────────────────────────
+
+const bgMusic  = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+
+if (bgMusic) bgMusic.volume = 0.6;
+
+function toggleMusic() {
+  if (!bgMusic) return;
+  if (bgMusic.paused) {
+    bgMusic.play();
+    musicBtn.classList.remove('muted');
+    musicBtn.querySelector('.music-icon').textContent = '♪';
+  } else {
+    bgMusic.pause();
+    musicBtn.classList.add('muted');
+    musicBtn.querySelector('.music-icon').textContent = '♩';
+  }
+}
+
+if (musicBtn) musicBtn.addEventListener('click', toggleMusic);
+
 // ── Envelope opening animation ───────────────────────
 
 // Lock scroll until the envelope is opened
@@ -103,6 +125,8 @@ function openEnvelope() {
   if (envelope.classList.contains('open')) return;
   envelope.classList.add('open');
   if (hint) hint.classList.add('hidden');
+
+  if (bgMusic) bgMusic.play().catch(function () {});
 
   setTimeout(function () {
     if (letterCard) letterCard.classList.add('visible');
