@@ -80,9 +80,48 @@ function removeBlackBg(imgEl, threshold) {
 const laceFrame = document.querySelector('.lace-frame');
 if (laceFrame) removeBlackBg(laceFrame);
 
+
 document.querySelectorAll('.lace-deco').forEach(function (el) {
   removeBlackBg(el, 60);
 });
+
+
+function removeNeutralBg(imgEl) {
+  function process() {
+    const canvas = document.createElement('canvas');
+    const ctx    = canvas.getContext('2d');
+    canvas.width  = imgEl.naturalWidth;
+    canvas.height = imgEl.naturalHeight;
+    ctx.drawImage(imgEl, 0, 0);
+
+    try {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imageData.data;
+
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i + 1], b = d[i + 2];
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const saturation = max - min;
+        const brightness = max;
+
+        if (brightness > 120 && saturation < 65) {
+          const t = (brightness - 120) / (255 - 120);
+          d[i + 3] = Math.round(255 * (1 - t));
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      imgEl.src = canvas.toDataURL('image/png');
+    } catch (e) {}
+  }
+
+  if (imgEl.complete && imgEl.naturalWidth > 0) {
+    process();
+  } else {
+    imgEl.addEventListener('load', process);
+  }
+}
 
 // ── Background music ─────────────────────────────────
 
@@ -125,6 +164,8 @@ function openEnvelope() {
   if (envelope.classList.contains('open')) return;
   envelope.classList.add('open');
   if (hint) hint.classList.add('hidden');
+  const envNames = document.querySelector('.env-names');
+  if (envNames) envNames.classList.add('hidden');
 
   if (bgMusic) bgMusic.play().catch(function () {});
 

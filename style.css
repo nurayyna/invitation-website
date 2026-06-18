@@ -33,7 +33,9 @@ body {
 /* ── ENVELOPE PAGE ─────────────────────────────── */
 
 .envelope-page {
-  min-height: 100vh;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -47,13 +49,18 @@ body {
 }
 
 .envelope-eyebrow {
+  position: absolute;
+  top: 1.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   font-family: var(--font-sans);
   font-size: 0.68rem;
   letter-spacing: 0.38em;
   text-transform: uppercase;
   color: var(--cream);
   opacity: 0.5;
-  margin-bottom: 1rem;
+  z-index: 2;
 }
 
 /* ── IMAGE-BASED ENVELOPE (landing page) ───────── */
@@ -346,7 +353,12 @@ body {
 
 /* Hint */
 .envelope-hint {
-  margin-top: 1.4rem;
+  position: absolute;
+  bottom: 1.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  margin-top: 0;
   font-family: var(--font-sans);
   font-size: 0.65rem;
   letter-spacing: 0.28em;
@@ -356,7 +368,69 @@ body {
   transition: opacity 0.4s ease;
 }
 
-.envelope-hint.hidden { opacity: 0; }
+.envelope-hint.hidden,
+.env-names.hidden { opacity: 0; pointer-events: none; }
+
+/* Corner flower ornaments — position: relative + overflow already on .envelope-page above */
+
+.corner-flower {
+  position: absolute;
+  width: clamp(160px, 20vw, 280px);
+  pointer-events: none;
+}
+
+.corner-flower--bl { bottom: 0; left: 0; }
+.corner-flower--br { bottom: 0; right: 0; transform: scaleX(-1); }
+.corner-flower--tl { top: 0;    left: 0; transform: scaleY(-1); }
+.corner-flower--tr { top: 0;    right: 0; transform: scale(-1, -1); }
+
+/* Organza drapes */
+.organza-drape {
+  position: absolute;
+  width: clamp(220px, 28vw, 400px);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  filter: brightness(1.0) contrast(1.05);
+}
+
+.organza-drape--tr {
+  top: -2%;
+  right: -2%;
+}
+
+.organza-drape--bl {
+  bottom: -2%;
+  left: -2%;
+  transform: rotate(180deg);
+}
+
+/* Names + date below envelope */
+.env-names {
+  text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 2;
+  transition: opacity 0.4s ease;
+}
+
+.env-couple {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.3rem, 2.8vw, 1.9rem);
+  color: var(--cream);
+  letter-spacing: 0.04em;
+}
+
+.env-wedding-date {
+  margin-top: 0.3rem;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
 
 /* ── NAVIGATION ─────────────────────────────────── */
 
