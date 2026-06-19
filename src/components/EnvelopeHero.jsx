@@ -112,11 +112,12 @@ export default function EnvelopeHero({ ready }) {
         })
       }
 
-      // Letter card (z-index: 8 — behind envelope's z-index: 10) fades in from behind
-      if (letterCard && p > 0.64) {
-        letterCard.style.opacity = String(
-          Math.max(0, Math.min(1, (p - 0.65) / 0.30)),
-        )
+      // Letter card (z-index: 8 — behind envelope's z-index: 10) fades in from behind.
+      // Always set opacity unconditionally so scroll-back correctly resets it to 0.
+      if (letterCard) {
+        letterCard.style.opacity = p <= 0.64
+          ? '0'
+          : String(Math.max(0, Math.min(1, (p - 0.65) / 0.30)))
       }
 
       // Trigger letter content GSAP animation once at p≈0.82
