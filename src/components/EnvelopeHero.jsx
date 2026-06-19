@@ -8,10 +8,46 @@ export default function EnvelopeHero({ ready }) {
   const scrollZoneRef        = useRef(null)
   const envelopeRef          = useRef(null)
   const letterCardRef        = useRef(null)
+  const laceImgRef           = useRef(null)
   const rafRef               = useRef(null)
   const smoothPRef           = useRef(0)
   const targetPRef           = useRef(0)
   const letterAnimatedRef    = useRef(false)
+
+  // ── Remove dark background from lace frame image (canvas pixel removal) ──────
+  // mix-blend-mode can't pierce the opacity stacking context, so we permanently
+  // make dark pixels transparent in the image data itself.
+  useEffect(() => {
+    const img = laceImgRef.current
+    if (!img) return
+
+    function process() {
+      const canvas = document.createElement('canvas')
+      const ctx    = canvas.getContext('2d')
+      canvas.width  = img.naturalWidth
+      canvas.height = img.naturalHeight
+      ctx.drawImage(img, 0, 0)
+      try {
+        const id = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const d  = id.data
+        const threshold = 45
+        for (let i = 0; i < d.length; i += 4) {
+          const brightness = Math.max(d[i], d[i + 1], d[i + 2])
+          if (brightness < threshold) {
+            d[i + 3] = Math.round(255 * brightness / threshold)
+          }
+        }
+        ctx.putImageData(id, 0, 0)
+        img.src = canvas.toDataURL('image/png')
+      } catch (e) {}
+    }
+
+    if (img.complete && img.naturalWidth > 0) {
+      process()
+    } else {
+      img.addEventListener('load', process, { once: true })
+    }
+  }, [])
 
   // ── Entrance animations (triggered once intro dismisses) ───────────────────
   useEffect(() => {
@@ -206,9 +242,9 @@ export default function EnvelopeHero({ ready }) {
             style={{ width: 'min(760px,88vw)', opacity: 0, zIndex: 8 }}
           >
             <img
+              ref={laceImgRef}
               src="/assets/square-lace.png"
               className="w-full h-auto block"
-              style={{ mixBlendMode: 'screen' }}
               alt="" aria-hidden="true"
             />
             <div
