@@ -46,10 +46,10 @@ export default function Garden() {
       </div>
 
       <div className="garden__text">
-        <p className="label" data-reveal>The English Garden</p>
-        <h2 id="garden-title" className="garden__title" data-reveal="lines">
+        <h2 id="garden-title" className="label" data-reveal>The English Garden</h2>
+        <p className="garden__title" data-reveal="lines">
           {couple.first} <span>&amp;</span> {couple.second}
-        </h2>
+        </p>
         <p className="garden__date" data-reveal>{dateLong}</p>
       </div>
 

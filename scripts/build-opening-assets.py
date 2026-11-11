@@ -6,7 +6,8 @@ import sys
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageChops
 
 SRC, OUT = 'assets', 'public/assets/opening'
-W = 1600                                  # output width of every envelope layer
+W = 1600                                  # working width of every envelope layer
+SHIP_W = 1200                             # width the layers are saved at
 CROP = (363, 393, 3810, 2771)             # envelope bbox in the source + 20px pad
 # Flap outline in source-image pixels (clockwise from top-left corner).
 FLAP_SRC = [(388, 414), (3788, 414), (3788, 610), (2140, 2124), (2046, 2112), (388, 560)]
@@ -53,7 +54,9 @@ def main(debug=None):
     inner.putalpha(ImageChops.multiply(alpha, flap_mask))
 
     for name, im in [('flap', flap), ('pocket', pocket), ('interior', interior), ('flap-inner', inner)]:
-        im.save(f'{OUT}/envelope-{name}.webp', quality=84, method=6)
+        # authored at 1600px, shipped at 1200px (the envelope is never shown wider than 600 CSS px)
+        im = im.resize((SHIP_W, round(H * SHIP_W / W)), Image.LANCZOS)
+        im.save(f'{OUT}/envelope-{name}.webp', quality=82, method=6)
 
     # Wax seal: knock out the white studio background
     seal = Image.open(f'{SRC}/wax-seal-2.jpg').convert('RGB')
@@ -70,7 +73,7 @@ def main(debug=None):
     a = a.filter(ImageFilter.GaussianBlur(0.8))
     seal.putalpha(a)
     seal = seal.crop(seal.getbbox())
-    seal.thumbnail((520, 520), Image.LANCZOS)
+    seal.thumbnail((400, 400), Image.LANCZOS)
     seal.save(f'{OUT}/wax-seal.webp', quality=88, method=6)
 
     print('envelope', (W, H), 'aspect', round(W / H, 4))

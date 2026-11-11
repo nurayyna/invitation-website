@@ -12,6 +12,7 @@ export default function Invitation() {
         <p className="label" data-reveal>{hostLine}</p>
 
         <h2 id="invitation-title" className="letter__names" data-reveal>
+          <b className="sr-only">Wedding invitation: </b>
           {couple.first} <span>&amp;</span> {couple.second}
         </h2>
 
