@@ -1,0 +1,279 @@
+/* ── Opening scene / hero ─────────────────────────────────────────────────── */
+
+.opening {
+  /* Everything is sized from two measurements so envelope, card and type
+     stay in proportion on any screen. */
+  --env-w:  min(600px, 84vw, 66svh);
+  --env-h:  calc(var(--env-w) / 1.4493);
+  --card-w: min(720px, 84vw, 96svh);
+  --card-h: calc(var(--card-w) / 1.42);
+  --u:      calc(var(--card-w) / 100);
+
+  position: relative;
+  height: 100svh;
+  min-height: 22rem;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--ivory);
+  background: var(--forest);
+}
+
+.opening__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 46%, rgba(165, 172, 140, 0.16), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 50%, transparent 55%, var(--forest-deep) 100%),
+    linear-gradient(180deg, var(--forest-soft) 0%, var(--forest) 40%, var(--forest) 100%);
+}
+.opening__atmosphere::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain);
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
+}
+
+/* ── Stage: envelope back · card · envelope front share one grid cell ─────── */
+
+.opening__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;            /* the stage must never cover the controls */
+}
+.opening__stage > * { grid-area: 1 / 1; }
+.opening__stage > :is(.card, .envelope--front) { pointer-events: auto; }
+
+.envelope {
+  position: relative;
+  width: var(--env-w);
+  aspect-ratio: 1.4493;
+}
+.envelope--back  { z-index: 1; filter: drop-shadow(0 28px 34px rgba(0, 0, 0, 0.5)); }
+.envelope--front { z-index: 3; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.opening[data-state='opening'] .envelope--front { cursor: default; }
+
+.envelope__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+.envelope__flap { position: absolute; inset: 0; will-change: transform; }
+.envelope__flap[data-flap='inner'] { visibility: hidden; }
+
+.envelope__seal {
+  position: absolute;
+  left: 38%;
+  top: 44%;
+  width: 24%;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 0.25em 0.3em rgba(40, 8, 14, 0.55));
+}
+
+/* Nothing shows until the artwork is decoded (see Opening.jsx) */
+.opening[data-ready='false'][data-state='sealed'] :is(.envelope, .card, .opening__intro, .opening__controls) {
+  visibility: hidden;
+}
+
+/* ── The card ─────────────────────────────────────────────────────────────── */
+
+.card {
+  position: relative;
+  z-index: 2;
+  width: var(--card-w);
+  aspect-ratio: 1.42;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--u) * 7) calc(var(--u) * 8);
+  text-align: center;
+  color: var(--forest);
+  background-color: var(--ivory);
+  background-image: var(--grain), linear-gradient(140deg, #FCF8F0 0%, var(--ivory) 45%, var(--ivory-shade) 100%);
+  background-blend-mode: soft-light, normal;
+  box-shadow: var(--shadow-paper);
+  will-change: transform;
+}
+.opening[data-state='open'] .card { will-change: auto; }
+
+/* double hairline frame */
+.card::before,
+.card::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid var(--gold);
+}
+.card::before { inset: calc(var(--u) * 2.4); }
+.card::after  { inset: calc(var(--u) * 3.3); border-color: var(--gold-soft); }
+
+.card__monogram {
+  font-family: var(--font-display);
+  font-size: max(calc(var(--u) * 2.5), 0.625rem);
+  letter-spacing: 0.34em;
+  margin-right: -0.34em;
+  margin-bottom: calc(var(--u) * 3.6);
+}
+.card__monogram span { font-style: italic; color: var(--gold); }
+
+.card__eyebrow {
+  font-family: var(--font-sans);
+  font-size: max(calc(var(--u) * 1.5), 0.5625rem);
+  font-weight: 400;
+  letter-spacing: var(--track-label);
+  margin-right: calc(var(--track-label) * -1);
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.card__names {
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: calc(var(--u) * 12);
+  line-height: 1.15;
+  color: var(--burgundy);
+  margin-block: calc(var(--u) * 1.2) calc(var(--u) * 0.6);
+  padding-inline: 0.15em;
+  white-space: nowrap;
+  outline: none;
+}
+.card__amp {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.62em;
+  color: var(--gold);
+  padding-inline: 0.12em;
+}
+
+.card__rule {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 1.6);
+  width: calc(var(--u) * 30);
+  color: var(--gold);
+  margin-bottom: calc(var(--u) * 3);
+}
+.card__rule span { flex: 1; height: 1px; background: currentColor; }
+.card__rule i { font-style: normal; font-size: max(calc(var(--u) * 1.1), 0.4rem); line-height: 1; }
+
+.card__date {
+  font-family: var(--font-display);
+  font-size: max(calc(var(--u) * 2.25), 0.6875rem);
+  letter-spacing: 0.24em;
+  margin-right: -0.24em;
+  text-transform: uppercase;
+}
+.card__venue {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: max(calc(var(--u) * 2.9), 0.9375rem);
+  margin-top: calc(var(--u) * 0.8);
+  opacity: 0.85;
+}
+
+/* ── Sealed-state typography + controls ───────────────────────────────────── */
+
+.opening__intro {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(50% + var(--env-h) / 2 + clamp(1.25rem, 4.5svh, 3rem));
+  padding-inline: 1.5rem;
+  text-align: center;
+}
+.opening__headline {
+  margin-top: 0.9rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.25rem);
+  line-height: 1.1;
+  color: var(--ivory);
+}
+
+.opening__controls {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(50% + var(--env-h) / 2 + clamp(1.25rem, 5svh, 3.25rem));
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+}
+
+.opening__skip {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  z-index: 5;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sage);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.opening__skip:hover { color: var(--ivory); }
+
+/* ── Hero furniture that arrives after opening ────────────────────────────── */
+
+.opening[data-state='sealed'] [data-after] { visibility: hidden; }
+
+.opening__topline {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(50% + var(--card-h) / 2 + var(--u) * 3.6 + clamp(1rem, 3.5svh, 2.25rem));
+  text-align: center;
+}
+
+/* Lace edging that shows around the card, and bouquets laid over its corners */
+.opening__lace {
+  --lace: calc(var(--u) * 3.6);
+  z-index: 1;
+  width: calc(var(--card-w) + var(--lace) * 1.75);
+  height: calc(var(--card-h) + var(--lace) * 1.7);
+}
+.opening__florals {
+  position: relative;
+  z-index: 4;
+  width: var(--card-w);
+  height: var(--card-h);
+  pointer-events: none;
+}
+.opening__florals img { width: calc(var(--u) * 27); }
+.opening__florals img:first-child { right: calc(var(--u) * -7.5); top: calc(var(--u) * -17); rotate: 24deg; }
+.opening__florals img:last-child  { left: calc(var(--u) * -7.5); bottom: calc(var(--u) * -17); rotate: 204deg; }
+
+.opening__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 0.5rem;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem 0;
+  text-indent: var(--track-label);
+  transition: color 0.3s ease;
+}
+.opening__scroll:hover { color: var(--ivory); }
+.opening__scroll span { width: 1px; height: clamp(1.25rem, 5svh, 2.75rem); background: var(--gold); }
+
+/* Very short screens (landscape phones): the envelope and button are enough */
+@media (max-height: 30rem) {
+  .opening { --card-w: min(84vw, 84svh); }
+  .opening__headline, .opening__topline { display: none; }
+}

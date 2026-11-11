@@ -1,11 +1,11 @@
+@import './styles/tokens.css';
+@import './styles/base.css';
+@import './styles/keepsakes.css';
+@import './styles/sections.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Prevent browser smooth-scroll from fighting Lenis */
-html {
-  scroll-behavior: auto;
-}
 
 @layer base {
   * {
@@ -15,22 +15,23 @@ html {
   }
 
   body {
-    background-color: #1C3520;
-    color: #1E1612;
+    background-color: var(--forest);
+    color: var(--ink);
     overflow-x: hidden;
-    font-family: 'Jost', system-ui, sans-serif;
+    font-family: var(--font-sans);
     font-weight: 300;
   }
-}
 
-/* Floating animation for envelope at rest */
-@keyframes floatEnv {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-10px); }
-}
+  /* Page is held still until the invitation has been opened (or skipped). */
+  html.is-sealed,
+  html.is-sealed body {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
 
-/* Scale-in horizontal rule */
-@keyframes expandX {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
+  @media (prefers-reduced-motion: no-preference) {
+    html:not(.is-sealed) {
+      scroll-behavior: smooth;
+    }
+  }
 }

@@ -1,0 +1,45 @@
+/* Design tokens — Modern English Regency.
+   Tailwind's theme (tailwind.config.js) mirrors the colour + font tokens. */
+:root {
+  /* Palette */
+  --forest:        #1C3524;
+  --forest-deep:   #12241A;
+  --forest-soft:   #2A4A34;
+  --burgundy:      #681A2B;
+  --burgundy-deep: #4A111E;
+  --sage:          #A5AC8C;
+  --ivory:         #F7F1E6;
+  --ivory-shade:   #ECE3D0;
+  --gold:          #B49A60;
+  --gold-soft:     rgba(180, 154, 96, 0.45);
+  --ink:           #23291F;
+
+  /* Typography */
+  --font-serif:   'Cormorant Garamond', Georgia, serif;         /* editorial text */
+  --font-display: 'Bodoni Moda', 'Didot', Georgia, serif;       /* display caps   */
+  --font-script:  'Pinyon Script', 'Snell Roundhand', cursive;  /* names only     */
+  --font-sans:    'DM Sans', system-ui, sans-serif;             /* labels, UI     */
+
+  --track-label: 0.32em;
+  --text-label:  0.6875rem;
+
+  --text-body:    clamp(1.125rem, 1.02rem + 0.45vw, 1.375rem);
+  --text-lead:    clamp(1.375rem, 1.15rem + 1vw, 1.875rem);
+  --text-display: clamp(2.5rem, 1.5rem + 4.6vw, 5.25rem);
+
+  /* Spacing scale */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+  --space-6: 7rem;
+  --gutter:      clamp(1.25rem, 5vw, 4rem);
+  --section-pad: clamp(4.5rem, 11vw, 9rem);
+  --measure:     34rem;
+
+  /* Material */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --shadow-paper: 0 1px 1px rgba(0, 0, 0, 0.12), 0 18px 40px -12px rgba(0, 0, 0, 0.5);
+  --focus-ring: 0 0 0 2px var(--forest), 0 0 0 4px var(--gold);
+}

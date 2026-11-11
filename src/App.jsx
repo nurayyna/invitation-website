@@ -1,37 +1,41 @@
 import { useState, useEffect, useRef } from 'react'
-import { AnimatePresence } from 'framer-motion'
-import Lenis from 'lenis'
+import { ScrollTrigger } from './lib/motion'
 
-import IntroScreen      from './components/IntroScreen'
+import Opening          from './components/opening/Opening'
 import Navigation       from './components/Navigation'
-import EnvelopeHero     from './components/EnvelopeHero'
-import InvitationSection from './components/InvitationSection'
-import EventsSection    from './components/EventsSection'
-import RSVPSection      from './components/RSVPSection'
-import Footer           from './components/Footer'
+import Garden           from './components/sections/Garden'
+import Story            from './components/sections/Story'
+import Invitation       from './components/sections/Invitation'
+import Events           from './components/sections/Events'
+import Venue            from './components/sections/Venue'
+import DressCode        from './components/sections/DressCode'
+import Rsvp             from './components/sections/Rsvp'
+import Closing          from './components/sections/Closing'
 import MusicButton      from './components/MusicButton'
 
 export default function App() {
-  const [ready, setReady]               = useState(false)
+  const [opened, setOpened]             = useState(false)
   const [musicPlaying, setMusicPlaying] = useState(false)
   const audioRef                        = useRef(null)
+  const pageRef                         = useRef(null)
 
-  // Lenis smooth scroll
+  // Until the invitation is opened the page below is held still and kept out
+  // of the tab order, so the envelope is the only thing to interact with.
   useEffect(() => {
-    const lenis = new Lenis({ lerp: 0.1 })
+    history.scrollRestoration = 'manual'
+    if (!opened) window.scrollTo(0, 0)
+    document.documentElement.classList.toggle('is-sealed', !opened)
+    if (pageRef.current) pageRef.current.inert = !opened
+    return () => document.documentElement.classList.remove('is-sealed')
+  }, [opened])
 
-    let rafId
-    function raf(time) {
-      lenis.raf(time)
-      rafId = requestAnimationFrame(raf)
-    }
-    rafId = requestAnimationFrame(raf)
-
-    return () => {
-      cancelAnimationFrame(rafId)
-      lenis.destroy()
-    }
-  }, [])
+  // Scroll positions are measured once type has loaded and again when the
+  // page is released, so reveals fire where they should.
+  useEffect(() => {
+    let live = true
+    document.fonts.ready.then(() => live && ScrollTrigger.refresh())
+    return () => { live = false }
+  }, [opened])
 
   // Sync audio element with musicPlaying state
   useEffect(() => {
@@ -45,25 +49,24 @@ export default function App() {
     }
   }, [musicPlaying])
 
-  const handleIntroComplete = () => {
-    setReady(true)
-    setMusicPlaying(true)
-  }
-
   return (
     <>
-      <AnimatePresence>
-        {!ready && (
-          <IntroScreen key="intro" onComplete={handleIntroComplete} />
-        )}
-      </AnimatePresence>
-
       <Navigation />
-      <EnvelopeHero ready={ready} />
-      <InvitationSection />
-      <EventsSection />
-      <RSVPSection />
-      <Footer />
+      <Opening
+        onOpenStart={() => setMusicPlaying(true)}
+        onOpened={() => setOpened(true)}
+      />
+
+      <main ref={pageRef}>
+        <Garden />
+        <Story />
+        <Invitation />
+        <Events />
+        <Venue />
+        <DressCode />
+        <Rsvp />
+        <Closing />
+      </main>
 
       <MusicButton
         playing={musicPlaying}

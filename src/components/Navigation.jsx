@@ -1,77 +1,51 @@
 import { useState, useEffect } from 'react'
+import { wedding } from '../content/wedding'
 
 const links = [
-  { href: '#invitation', label: 'Invitation' },
-  { href: '#events',     label: 'Events'     },
-  { href: '#rsvp',       label: 'RSVP'       },
+  { id: 'story',      label: 'Story',      secondary: true },
+  { id: 'invitation', label: 'Invitation' },
+  { id: 'events',     label: 'Events' },
+  { id: 'venue',      label: 'Venue',      secondary: true },
+  { id: 'rsvp',       label: 'RSVP' },
 ]
 
 export default function Navigation() {
-  const [visible,     setVisible]     = useState(false)
-  const [activeHref,  setActiveHref]  = useState('')
+  const [visible, setVisible] = useState(false)
+  const [active, setActive]   = useState('')
 
-  // Show nav once envelope section scrolls off screen
+  // Appears once the opening hero has scrolled away
   useEffect(() => {
-    const onScroll = () => {
-      const home = document.getElementById('home')
-      if (!home) return
-      setVisible(home.getBoundingClientRect().bottom <= 0)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    const home = document.getElementById('home')
+    if (!home) return
+    const io = new IntersectionObserver(([entry]) => setVisible(!entry.isIntersecting))
+    io.observe(home)
+    return () => io.disconnect()
   }, [])
 
-  // Scroll-spy: highlight active section
+  // Scroll-spy: whichever section crosses the middle of the viewport
   useEffect(() => {
-    const ids      = ['invitation', 'events', 'rsvp']
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) setActiveHref('#' + e.target.id)
-        })
-      },
-      { threshold: 0.35 },
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id) }),
+      { rootMargin: '-45% 0px -50% 0px' },
     )
-    ids.forEach(id => {
+    links.forEach(({ id }) => {
       const el = document.getElementById(id)
-      if (el) observer.observe(el)
+      if (el) io.observe(el)
     })
-    return () => observer.disconnect()
+    return () => io.disconnect()
   }, [])
+
+  const [a, b] = wedding.couple.monogram
 
   return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 transition-all duration-500"
-      style={{
-        background:     'rgba(28,53,32,0.95)',
-        backdropFilter: 'blur(8px)',
-        opacity:          visible ? 1 : 0,
-        pointerEvents:    visible ? 'auto' : 'none',
-        borderBottom:   '1px solid rgba(184,150,60,0.12)',
-      }}
-    >
-      <a
-        href="#home"
-        className="font-serif italic text-cream tracking-[0.12em] hover:text-gold transition-colors duration-300"
-        style={{ fontSize: '1.15rem' }}
-      >
-        A &amp; A
+    <nav className="nav" data-visible={visible} aria-label="Sections">
+      <a href="#home" className="nav__monogram" aria-label="Back to the invitation">
+        {a} <span>&amp;</span> {b}
       </a>
-
-      <ul className="flex gap-8 list-none">
-        {links.map(({ href, label }) => (
-          <li key={href}>
-            <a
-              href={href}
-              className="font-sans text-cream uppercase tracking-[0.28em] transition-opacity duration-300"
-              style={{
-                fontSize:   '0.65rem',
-                opacity:    activeHref === href ? 1 : 0.55,
-                fontWeight: activeHref === href ? 400 : 300,
-              }}
-            >
-              {label}
-            </a>
+      <ul className="nav__links">
+        {links.map(({ id, label, secondary }) => (
+          <li key={id} data-secondary={secondary || undefined}>
+            <a href={`#${id}`} aria-current={active === id ? 'true' : undefined}>{label}</a>
           </li>
         ))}
       </ul>
