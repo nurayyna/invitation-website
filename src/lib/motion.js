@@ -1,10 +1,11 @@
 // Shared motion language. Every animated component imports gsap from here so
 // plugins are registered exactly once and timings stay consistent.
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
 
-gsap.registerPlugin(useGSAP, SplitText)
+gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText)
 
 // Slow, weighted, no overshoot — paper and wax, not rubber.
 export const ease = {
@@ -16,11 +17,13 @@ export const ease = {
 }
 
 export const duration = {
-  quick:  0.45,
-  base:   0.9,
-  slow:   1.5,
+  quick: 0.45,
+  base:  0.9,
+  slow:  1.5,
 }
 
 export const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
+export const FULL_MOTION    = '(prefers-reduced-motion: no-preference)'
+export const DESKTOP        = '(min-width: 768px)'
 
-export { gsap, SplitText, useGSAP }
+export { gsap, ScrollTrigger, SplitText, useGSAP }

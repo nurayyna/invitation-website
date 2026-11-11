@@ -36,15 +36,6 @@
   mix-blend-mode: soft-light;
 }
 
-.label {
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  font-weight: 400;
-  letter-spacing: var(--track-label);
-  text-transform: uppercase;
-  color: var(--sage);
-}
-
 /* ── Stage: envelope back · card · envelope front share one grid cell ─────── */
 
 .opening__stage {
@@ -218,32 +209,6 @@
   justify-content: center;
 }
 
-.opening__open {
-  position: relative;
-  min-height: 3rem;
-  padding: 0.9rem 2.4rem;
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: var(--track-label);
-  text-indent: var(--track-label);
-  text-transform: uppercase;
-  color: var(--ivory);
-  border: 1px solid var(--gold);
-  background: rgba(180, 154, 96, 0);
-  cursor: pointer;
-  transition: background-color 0.5s ease, color 0.5s ease;
-}
-.opening__open::after {           /* inner hairline, echoing the card frame */
-  content: '';
-  position: absolute;
-  inset: 3px;
-  border: 1px solid var(--gold-soft);
-  pointer-events: none;
-}
-.opening__open:hover:not(:disabled) { background: rgba(180, 154, 96, 0.16); }
-.opening__open:disabled { cursor: default; }
-
 .opening__skip {
   position: absolute;
   top: 0.5rem;
@@ -261,11 +226,6 @@
   transition: color 0.3s ease;
 }
 .opening__skip:hover { color: var(--ivory); }
-
-.opening :is(button, a):focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
 
 /* ── Hero furniture that arrives after opening ────────────────────────────── */
 

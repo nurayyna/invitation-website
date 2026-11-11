@@ -23,7 +23,7 @@ const InvitationCard = forwardRef(function InvitationCard({ headingRef }, ref) {
       </div>
 
       <p className="card__date" data-anim="print">{dateLong}</p>
-      <p className="card__venue" data-anim="print">{venue}</p>
+      <p className="card__venue" data-anim="print">{venue.name}</p>
     </article>
   )
 })

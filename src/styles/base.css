@@ -1,0 +1,167 @@
+/* Shared primitives: sections, headings, labels, buttons, frames. */
+
+.label {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-weight: 400;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--tone-muted, var(--sage));
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Text that stands in for content the couple has yet to supply */
+.is-placeholder { font-style: italic; opacity: 0.55; }
+
+/* ── Section + tones ──────────────────────────────────────────────────────── */
+
+.section {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  padding: var(--section-pad) var(--gutter);
+  color: var(--tone-ink);
+  background-color: var(--tone-bg);
+  font-family: var(--font-serif);
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+.section::before {            /* paper grain */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--grain);
+  opacity: var(--tone-grain, 0.35);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.section--forest   { --tone-bg: var(--forest);   --tone-ink: var(--ivory);  --tone-muted: var(--sage);   --tone-accent: var(--gold); --tone-grain: 0.5; }
+.section--burgundy { --tone-bg: var(--burgundy-deep); --tone-ink: var(--ivory); --tone-muted: #D9B9B0; --tone-accent: var(--gold); --tone-grain: 0.6; }
+.section--ivory    { --tone-bg: var(--ivory);    --tone-ink: var(--forest); --tone-muted: #5E6B55;       --tone-accent: var(--burgundy); }
+.section--sage     { --tone-bg: var(--sage);     --tone-ink: var(--forest-deep); --tone-muted: #3D4A36;  --tone-accent: var(--burgundy); --tone-grain: 0.55; }
+
+/* ── Headings ─────────────────────────────────────────────────────────────── */
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  margin-bottom: var(--space-5);
+}
+.heading__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--text-display);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: min(13rem, 60%);
+  color: var(--gold);
+}
+.rule span { flex: 1; height: 1px; background: currentColor; }
+.rule i { font-style: normal; font-size: 0.5rem; line-height: 1; }
+
+/* ── Button ───────────────────────────────────────────────────────────────── */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.9rem 2.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: var(--track-label);
+  text-indent: var(--track-label);
+  text-transform: uppercase;
+  color: inherit;
+  border: 1px solid var(--gold);
+  background: rgba(180, 154, 96, 0);
+  cursor: pointer;
+  transition: background-color 0.5s ease;
+}
+.btn::after {                 /* inner hairline, echoing the invitation card */
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--gold-soft);
+  pointer-events: none;
+}
+.btn:hover:not(:disabled) { background: rgba(180, 154, 96, 0.18); }
+.btn:disabled { cursor: default; opacity: 0.7; }
+
+:is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* ── Gilt picture frame ───────────────────────────────────────────────────── */
+
+.frame {
+  --frame-w: clamp(0.5rem, 1.1vw, 0.85rem);
+  position: relative;
+  padding: var(--frame-w);
+  background:
+    linear-gradient(135deg, #D9C48E 0%, #9C8247 22%, #E6D5A4 48%, #8E743D 74%, #CDB57A 100%);
+  box-shadow:
+    0 0 0 1px rgba(60, 44, 12, 0.55),
+    0 24px 44px -18px rgba(20, 24, 16, 0.55);
+}
+.frame::after {               /* bevel between gilt and picture */
+  content: '';
+  position: absolute;
+  inset: var(--frame-w);
+  box-shadow: inset 0 0 0 1px rgba(60, 44, 12, 0.6), inset 0 0 0 4px rgba(247, 241, 230, 0.55), inset 0 0 0 5px rgba(60, 44, 12, 0.35);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.frame__window { position: relative; overflow: hidden; background: var(--ivory-shade); }
+.frame--portrait .frame__window,
+.frame--arch .frame__window     { aspect-ratio: 4 / 5; }
+.frame--landscape .frame__window { aspect-ratio: 3 / 2; }
+
+.frame--arch,
+.frame--arch .frame__window { border-radius: 50% 50% 0 0 / 31% 31% 0 0; }
+.frame--arch::after { border-radius: 50% 50% 0 0 / 31% 31% 0 0; }
+
+.frame__window img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.frame__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1rem;
+  text-align: center;
+  color: var(--forest);
+  background:
+    var(--grain),
+    radial-gradient(ellipse at 50% 35%, #C3C9AE 0%, var(--sage) 55%, #8D9577 100%);
+  background-blend-mode: soft-light, normal;
+}
+.frame__placeholder .label { color: var(--forest); opacity: 0.8; }
+.frame__placeholder-mark { font-size: 1.75rem; line-height: 1; color: var(--forest); opacity: 0.5; }

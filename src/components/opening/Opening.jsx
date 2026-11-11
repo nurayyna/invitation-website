@@ -132,7 +132,7 @@ export default function Opening({ onOpenStart, onOpened }) {
           </div>
 
           <div ref={controls} className="opening__controls">
-            <button type="button" className="opening__open" onClick={open} disabled={!sealed}>
+            <button type="button" className="btn opening__open" onClick={open} disabled={!sealed}>
               Open Invitation
             </button>
           </div>
