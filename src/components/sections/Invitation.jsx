@@ -9,6 +9,8 @@ export default function Invitation() {
   return (
     <Section id="invitation" tone="burgundy" className="invitation" aria-labelledby="invitation-title">
       <div className="letter">
+        <img className="keepsake letter__bouquet" src="/assets/keepsakes/bouquet.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+        <img className="keepsake letter__bouquet" src="/assets/keepsakes/bouquet.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" />
         <p className="label" data-reveal>{hostLine}</p>
 
         <h2 id="invitation-title" className="letter__names" data-reveal>

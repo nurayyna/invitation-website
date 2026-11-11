@@ -8,6 +8,7 @@ export default function Venue() {
 
   return (
     <Section id="venue" tone="sage" className="venue" aria-labelledby="venue-title">
+      <img className="keepsake venue__lace" src="/assets/keepsakes/lace-drape.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" />
       <div className="venue__grid">
         <PhotoFrame
           src={venue.photo}

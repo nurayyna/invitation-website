@@ -6,7 +6,7 @@ export default function DressCode() {
   const { summary, avoid, palette } = wedding.dressCode
 
   return (
-    <Section id="dress-code" tone="ivory" className="dress" aria-labelledby="dress-title">
+    <Section id="dress-code" tone="ivory" className="dress section--emboss" aria-labelledby="dress-title">
       <SectionHeading id="dress-title" eyebrow="Attire" title="Dress Code" />
 
       <p className="dress__summary" data-reveal>{summary}</p>

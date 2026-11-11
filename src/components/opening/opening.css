@@ -5,7 +5,7 @@
      stay in proportion on any screen. */
   --env-w:  min(600px, 84vw, 66svh);
   --env-h:  calc(var(--env-w) / 1.4493);
-  --card-w: min(720px, 92vw, 104svh);
+  --card-w: min(720px, 84vw, 96svh);
   --card-h: calc(var(--card-w) / 1.42);
   --u:      calc(var(--card-w) / 100);
 
@@ -234,9 +234,27 @@
 .opening__topline {
   position: absolute;
   inset-inline: 0;
-  bottom: calc(50% + var(--card-h) / 2 + clamp(1rem, 3.5svh, 2.25rem));
+  bottom: calc(50% + var(--card-h) / 2 + var(--u) * 3.6 + clamp(1rem, 3.5svh, 2.25rem));
   text-align: center;
 }
+
+/* Lace edging that shows around the card, and bouquets laid over its corners */
+.opening__lace {
+  --lace: calc(var(--u) * 3.6);
+  z-index: 1;
+  width: calc(var(--card-w) + var(--lace) * 1.75);
+  height: calc(var(--card-h) + var(--lace) * 1.7);
+}
+.opening__florals {
+  position: relative;
+  z-index: 4;
+  width: var(--card-w);
+  height: var(--card-h);
+  pointer-events: none;
+}
+.opening__florals img { width: calc(var(--u) * 27); }
+.opening__florals img:first-child { right: calc(var(--u) * -7.5); top: calc(var(--u) * -17); rotate: 24deg; }
+.opening__florals img:last-child  { left: calc(var(--u) * -7.5); bottom: calc(var(--u) * -17); rotate: 204deg; }
 
 .opening__scroll {
   position: absolute;
@@ -256,6 +274,6 @@
 
 /* Very short screens (landscape phones): the envelope and button are enough */
 @media (max-height: 30rem) {
-  .opening { --card-w: min(92vw, 92svh); }
+  .opening { --card-w: min(84vw, 84svh); }
   .opening__headline, .opening__topline { display: none; }
 }

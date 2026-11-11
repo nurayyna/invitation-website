@@ -138,8 +138,20 @@
 }
 .frame__window { position: relative; overflow: hidden; background: var(--ivory-shade); }
 .frame--portrait .frame__window,
+.frame--oval .frame__window,
 .frame--arch .frame__window     { aspect-ratio: 4 / 5; }
-.frame--landscape .frame__window { aspect-ratio: 3 / 2; }
+.frame--landscape .frame__window,
+.frame--lace .frame__window      { aspect-ratio: 3 / 2; }
+
+.frame--oval,
+.frame--oval .frame__window,
+.frame--oval::after { border-radius: 50%; }
+.frame--oval { --frame-w: clamp(0.7rem, 1.5vw, 1.15rem); }
+
+/* Mounted on lace-edged linen instead of gilt (see keepsakes.css .lace) */
+.frame--lace { padding: clamp(0.5rem, 1.2vw, 1rem); box-shadow: none; }
+.frame--lace::after { display: none; }
+.frame--lace .frame__window { box-shadow: 0 0 0 1px rgba(28, 53, 36, 0.18); }
 
 .frame--arch,
 .frame--arch .frame__window { border-radius: 50% 50% 0 0 / 31% 31% 0 0; }

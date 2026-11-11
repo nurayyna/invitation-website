@@ -4,17 +4,13 @@ import SectionHeading from '../ui/SectionHeading'
 import PhotoFrame from '../ui/PhotoFrame'
 
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI']
-const SHAPES   = ['arch', 'landscape', 'portrait']
+const SHAPES   = ['oval', 'lace', 'arch']
 
 export default function Story() {
   const { intro, chapters } = wedding.story
 
   return (
-    <Section id="story" tone="ivory" className="story" aria-labelledby="story-title">
-      <img
-        className="botanical" src="/assets/art/redoute-rose.webp" alt="" aria-hidden="true"
-        loading="lazy" decoding="async" data-parallax="7"
-      />
+    <Section id="story" tone="ivory" className="story section--emboss" aria-labelledby="story-title">
       <SectionHeading id="story-title" eyebrow="How it began" title="Our Story" />
 
       <p className={`story__intro ${intro ? '' : 'is-placeholder'}`} data-reveal>

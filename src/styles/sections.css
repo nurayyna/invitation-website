@@ -60,20 +60,6 @@
 
 /* ── Our Story ────────────────────────────────────────────────────────────── */
 
-.botanical {
-  position: absolute;
-  z-index: -1;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  user-select: none;
-}
-.story .botanical {
-  top: clamp(1rem, 4vw, 4rem);
-  right: clamp(-7rem, -6vw, -2rem);
-  width: clamp(11rem, 27vw, 24rem);
-  rotate: 9deg;
-}
-
 .story__intro {
   max-width: var(--measure);
   margin: 0 auto var(--space-6);
@@ -131,18 +117,12 @@
   color: var(--tone-muted);
 }
 
-@media (max-width: 1023px) {
-  .story .botanical { width: clamp(9rem, 19vw, 13rem); right: -2rem; }
-  .story__intro { max-width: min(var(--measure), 70vw); }
-}
 @media (max-width: 767px) {
   .chapter { display: block; }
   .chapter .chapter__frame { width: 78%; margin-bottom: var(--space-4); }
   .chapter:nth-child(even) .chapter__frame { width: 100%; }
   .chapter:nth-child(3n) .chapter__frame { margin-left: auto; }
   .chapter .chapter__text { max-width: none; padding: 0 !important; text-align: left !important; }
-  .story .botanical { top: 0.5rem; right: -3.25rem; width: 9.5rem; opacity: 0.6; }
-  .story__intro { max-width: var(--measure); }
 }
 
 /* ── Wedding Invitation ───────────────────────────────────────────────────── */
@@ -250,7 +230,29 @@
   color: var(--tone-muted);
 }
 
+/* bouquets laid across opposite corners of the letter */
+.letter__bouquet { width: clamp(6.5rem, 17vw, 13.5rem); z-index: 1; }
+.letter__bouquet:nth-of-type(1) { top: clamp(-5.5rem, -7vw, -2.5rem); left: clamp(-5rem, -6vw, -0.75rem); rotate: -24deg; }
+.letter__bouquet:nth-of-type(2) { bottom: clamp(-5.5rem, -7vw, -2.5rem); right: clamp(-5rem, -6vw, -0.75rem); rotate: 156deg; }
+
+@media (max-width: 639px) {
+  .letter__bouquet { width: 5rem; }
+  .letter__bouquet:nth-of-type(1) { top: -4rem; left: -1rem; }
+  .letter__bouquet:nth-of-type(2) { bottom: -4.1rem; right: -1rem; }
+  .letter { padding-bottom: 3.75rem; }
+}
+
 /* ── Order of the Day ─────────────────────────────────────────────────────── */
+
+.events__panel {
+  --tone-muted: #5E6B55;
+  max-width: 50rem;
+  margin-inline: auto;
+  padding: clamp(2.25rem, 6vw, 4.5rem) clamp(1rem, 5vw, 4rem) clamp(2.5rem, 6vw, 4.5rem);
+  color: var(--forest);
+}
+.events__panel .timeline__time { color: var(--burgundy); }
+.events__panel .timeline__item--pending .timeline__mark::before { background: var(--linen); }
 
 .timeline {
   max-width: 44rem;
@@ -326,6 +328,8 @@
   .venue__frame { width: 72%; justify-self: start; }
 }
 
+.venue__lace { top: 0; left: 0; z-index: -1; width: clamp(11rem, 30vw, 26rem); filter: drop-shadow(0 8px 10px rgba(28, 44, 24, 0.3)); }
+
 /* ── Dress Code ───────────────────────────────────────────────────────────── */
 
 .dress { text-align: center; }
@@ -390,6 +394,7 @@
   translate: -50% -52%;
   filter: drop-shadow(0 4px 6px rgba(20, 20, 10, 0.45));
 }
+.reply__sprig { right: clamp(-2.25rem, -3vw, -0.75rem); bottom: clamp(-2.5rem, -3vw, -1rem); width: clamp(5rem, 11vw, 8rem); scale: -1 1; z-index: 1; }
 .reply__form { position: relative; display: flex; flex-direction: column; gap: var(--space-4); }
 .reply__prose { font-style: italic; font-size: var(--text-lead); line-height: 1.45; text-align: center; }
 .reply__prose em { color: var(--burgundy); }

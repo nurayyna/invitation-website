@@ -81,6 +81,5 @@ export const wedding = {
   // Credits for the public-domain artwork used on the site.
   artwork: [
     'John Constable, Wivenhoe Park, Essex, 1816. National Gallery of Art, Washington. Public domain.',
-    'Pierre-Joseph Redouté, Rosa centifolia foliacea, from Les Roses, 1817–24. Public domain.',
   ],
 }

@@ -7,11 +7,12 @@ export default function Events() {
 
   return (
     <Section id="events" tone="forest" className="events" aria-labelledby="events-title">
+      <div className="events__panel lace" data-reveal>
       <SectionHeading id="events-title" eyebrow={dateLong} title="Order of the Day" />
 
       <ol className="timeline">
         {schedule.map((e) => (
-          <li key={e.time + e.title} className="timeline__item" data-reveal>
+          <li key={e.time + e.title} className="timeline__item">
             <p className="timeline__time">{e.time}</p>
             <span className="timeline__mark" aria-hidden="true" />
             <div>
@@ -22,7 +23,7 @@ export default function Events() {
         ))}
 
         {schedule.length < 2 && (
-          <li className="timeline__item timeline__item--pending" data-reveal>
+          <li className="timeline__item timeline__item--pending">
             <p className="timeline__time" aria-hidden="true">·&nbsp;·&nbsp;·</p>
             <span className="timeline__mark" aria-hidden="true" />
             <div>
@@ -31,6 +32,7 @@ export default function Events() {
           </li>
         )}
       </ol>
+      </div>
     </Section>
   )
 }

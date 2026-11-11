@@ -1,0 +1,45 @@
+/* Keepsake materials: lace, embossed paper, bouquets. Reusable across sections.
+   Artwork is derived by scripts/build-keepsake-assets.py. */
+
+/* ── Lace-edged linen ─────────────────────────────────────────────────────────
+   A border-image cut at the gaps between scallops, so the edging repeats
+   cleanly around a panel of any size. --lace is the width of the lace band. */
+.lace {
+  --lace: clamp(1.375rem, 3vw, 2.375rem);
+  --linen: #F0EADF;
+  border-style: solid;
+  border-color: transparent;
+  border-width: calc(var(--lace) * 1.24) calc(var(--lace) * 1.25) calc(var(--lace) * 1.06) calc(var(--lace) * 1.22);
+  border-image: url('/assets/keepsakes/lace-border.webp') 124 125 106 122 / 1 / 0 round;
+  background-color: var(--linen);
+  background-image: var(--grain);
+  background-blend-mode: soft-light;
+  background-clip: padding-box;
+  filter: drop-shadow(0 16px 22px rgba(10, 16, 10, 0.42));
+}
+.lace--edging { background: none; }       /* lace only: something else sits on top */
+
+/* ── Embossed ivory florals down both margins ─────────────────────────────── */
+.section--emboss {
+  --emboss-w: clamp(5.5rem, 15vw, 15.625rem);
+  --tone-bg: #F3ECDF;
+  background-image:
+    url('/assets/keepsakes/emboss-left.webp'),
+    url('/assets/keepsakes/emboss-right.webp'),
+    url('/assets/keepsakes/linen.webp');
+  background-position: left top, right top, center top;
+  background-size: var(--emboss-w) auto, var(--emboss-w) auto, 15rem auto;
+  background-repeat: repeat-y, repeat-y, repeat;
+}
+.section--emboss::before { display: none; }
+@media (max-width: 767px) {
+  .section--emboss { --emboss-w: 3.75rem; }   /* keep the relief clear of the text column */
+}   /* the paper already has its own texture */
+
+/* ── Loose florals and lace laid over a composition ───────────────────────── */
+.keepsake {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 10px 12px rgba(10, 16, 10, 0.35));
+}

@@ -69,6 +69,7 @@ export default function Rsvp() {
       <SectionHeading id="rsvp-title" eyebrow="Will you be joining us?" title="Kindly Reply" />
 
       <div className="reply" data-reveal>
+        <img className="keepsake reply__sprig" src="/assets/keepsakes/sprig.webp" alt="" aria-hidden="true" loading="lazy" decoding="async" />
         <img className="reply__seal" src="/assets/opening/wax-seal.webp" alt="" aria-hidden="true" loading="lazy" />
 
         {status === 'sent' ? (

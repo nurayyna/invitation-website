@@ -144,9 +144,15 @@ export default function Opening({ onOpenStart, onOpened }) {
       )}
 
       <div className="opening__stage">
+        <div className="opening__lace lace lace--edging" data-after aria-hidden="true" />
         {state !== 'open' && <EnvelopeBack ref={back} />}
         <InvitationCard ref={card} headingRef={heading} />
         {state !== 'open' && <EnvelopeFront ref={front} onClick={open} />}
+
+        <div className="opening__florals" data-after aria-hidden="true">
+          <img className="keepsake" src="/assets/keepsakes/bouquet.webp" alt="" />
+          <img className="keepsake" src="/assets/keepsakes/bouquet.webp" alt="" />
+        </div>
       </div>
 
       <p className="opening__topline label" data-after>You are cordially invited</p>
