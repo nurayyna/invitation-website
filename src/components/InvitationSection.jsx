@@ -50,13 +50,13 @@ export default function InvitationSection() {
           Together with their families
         </motion.p>
 
-        <motion.h1
+        <motion.h2
           className="font-serif italic text-cream"
           style={{ fontSize: 'clamp(2.6rem,9vw,5.5rem)', lineHeight: 1.05 }}
           variants={up(0.1)} initial="hidden" whileInView="visible" viewport={{ once: true }}
         >
           Amelia <span className="not-italic font-light text-gold">&amp;</span> Andy
-        </motion.h1>
+        </motion.h2>
 
         <motion.p
           className="font-sans text-cream uppercase tracking-[0.25em]"

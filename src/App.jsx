@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { AnimatePresence } from 'framer-motion'
-import Lenis from 'lenis'
 
-import IntroScreen      from './components/IntroScreen'
+import Opening          from './components/opening/Opening'
 import Navigation       from './components/Navigation'
-import EnvelopeHero     from './components/EnvelopeHero'
 import InvitationSection from './components/InvitationSection'
 import EventsSection    from './components/EventsSection'
 import RSVPSection      from './components/RSVPSection'
@@ -12,26 +9,20 @@ import Footer           from './components/Footer'
 import MusicButton      from './components/MusicButton'
 
 export default function App() {
-  const [ready, setReady]               = useState(false)
+  const [opened, setOpened]             = useState(false)
   const [musicPlaying, setMusicPlaying] = useState(false)
   const audioRef                        = useRef(null)
+  const pageRef                         = useRef(null)
 
-  // Lenis smooth scroll
+  // Until the invitation is opened the page below is held still and kept out
+  // of the tab order, so the envelope is the only thing to interact with.
   useEffect(() => {
-    const lenis = new Lenis({ lerp: 0.1 })
-
-    let rafId
-    function raf(time) {
-      lenis.raf(time)
-      rafId = requestAnimationFrame(raf)
-    }
-    rafId = requestAnimationFrame(raf)
-
-    return () => {
-      cancelAnimationFrame(rafId)
-      lenis.destroy()
-    }
-  }, [])
+    history.scrollRestoration = 'manual'
+    if (!opened) window.scrollTo(0, 0)
+    document.documentElement.classList.toggle('is-sealed', !opened)
+    if (pageRef.current) pageRef.current.inert = !opened
+    return () => document.documentElement.classList.remove('is-sealed')
+  }, [opened])
 
   // Sync audio element with musicPlaying state
   useEffect(() => {
@@ -45,25 +36,20 @@ export default function App() {
     }
   }, [musicPlaying])
 
-  const handleIntroComplete = () => {
-    setReady(true)
-    setMusicPlaying(true)
-  }
-
   return (
     <>
-      <AnimatePresence>
-        {!ready && (
-          <IntroScreen key="intro" onComplete={handleIntroComplete} />
-        )}
-      </AnimatePresence>
-
       <Navigation />
-      <EnvelopeHero ready={ready} />
-      <InvitationSection />
-      <EventsSection />
-      <RSVPSection />
-      <Footer />
+      <Opening
+        onOpenStart={() => setMusicPlaying(true)}
+        onOpened={() => setOpened(true)}
+      />
+
+      <div ref={pageRef}>
+        <InvitationSection />
+        <EventsSection />
+        <RSVPSection />
+        <Footer />
+      </div>
 
       <MusicButton
         playing={musicPlaying}

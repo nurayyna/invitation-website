@@ -46,6 +46,7 @@ export default function Navigation() {
         background:     'rgba(28,53,32,0.95)',
         backdropFilter: 'blur(8px)',
         opacity:          visible ? 1 : 0,
+        visibility:       visible ? 'visible' : 'hidden',
         pointerEvents:    visible ? 'auto' : 'none',
         borderBottom:   '1px solid rgba(184,150,60,0.12)',
       }}
