@@ -328,7 +328,8 @@
   .venue__frame { width: 72%; justify-self: start; }
 }
 
-.venue__lace { top: 0; left: 0; z-index: -1; width: clamp(11rem, 30vw, 26rem); filter: drop-shadow(0 8px 10px rgba(28, 44, 24, 0.3)); }
+.venue__lace { top: -4%; left: 0; z-index: -1; width: auto; max-width: none; height: 108%; translate: -42% 0; filter: drop-shadow(0 8px 10px rgba(28, 44, 24, 0.3)); }
+@media (max-width: 767px) { .venue__lace { translate: -46% 0; } }
 
 /* ── Dress Code ───────────────────────────────────────────────────────────── */
 

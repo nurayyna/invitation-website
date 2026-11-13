@@ -2,10 +2,11 @@
 // plugins are registered exactly once and timings stay consistent.
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin'
 import { SplitText } from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
 
-gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText)
+gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollToPlugin, SplitText)
 
 // Slow, weighted, no overshoot — paper and wax, not rubber.
 export const ease = {
