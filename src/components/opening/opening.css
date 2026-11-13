@@ -229,13 +229,29 @@
   user-select: none;
   will-change: transform;
 }
-.opening__fg--drape {                             /* the same curtain, mirrored onto the right edge */
+/* White lace curtains down both edges (one piece, mirrored for the right) */
+.opening__fg--drape {
   top: -6svh;
-  right: calc(var(--drape-w) * var(--drape-hide) * -1);
   width: var(--drape-w);
   filter: blur(0.6px) drop-shadow(0 1.2rem 1.4rem rgba(24, 2, 8, 0.55));
 }
-.opening__fg--drape img { scale: -1 1; }
+.opening__fg--drape.opening__fg--left  { left: calc(var(--drape-w) * var(--drape-hide) * -1); }
+.opening__fg--drape.opening__fg--right { right: calc(var(--drape-w) * var(--drape-hide) * -1); }
+.opening__fg--drape.opening__fg--right img { scale: -1 1; }
+
+/* Tonal burgundy lace hung just inside them: a second, deeper layer */
+.opening__fg--band {
+  top: -5svh;
+  height: 110svh;
+  --band-w: clamp(4rem, 9vw, 8.5rem);
+  width: var(--band-w);
+  filter: drop-shadow(0 0.5rem 0.7rem rgba(24, 2, 8, 0.6));
+}
+.opening__fg--band img { height: 100%; object-fit: fill; }
+.opening__fg--band.opening__fg--left  { left: calc(var(--band-w) * -0.36); }
+.opening__fg--band.opening__fg--right { right: calc(var(--band-w) * -0.36); }
+.opening__fg--band.opening__fg--right img { scale: -1 1; }
+
 .opening__fg--bouquet {
   left: clamp(-3.5rem, -3vw, -1.25rem);
   bottom: -26%;
@@ -439,7 +455,8 @@
   .opening { --drape-hide: 0.44; }
   .opening__title { top: 8svh; }
   .opening__fg--bouquet { width: 36vw; bottom: -16%; }
-  .opening__hint { bottom: 26svh; }
+  .opening__hint { bottom: 21svh; }
+  .opening__fg--band { --band-w: 3.5rem; }
   .ground__bouquet { width: 36vw; }
   .ground__bouquet--a { bottom: -14%; }
 }

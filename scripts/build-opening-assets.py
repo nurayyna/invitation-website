@@ -28,6 +28,7 @@ for src_name, out_name in [
     ('bouquet-cascade-white',       'bouquet-white'),      # foreground, sealed scene
     ('bouquet-cascade-burgundy',    'bouquet-burgundy'),   # on the table, bottom-left
     ('florals-cluster-burgundy',    'florals-burgundy'),   # on the table, top-right
+    ('lace-trim-burgundy',          'lace-band-burgundy'), # tonal lace behind the white curtains
 ]:
     im = Image.open(f'{ELEMENTS}/{src_name}.png').convert('RGBA')
     im = im.crop(im.getbbox())

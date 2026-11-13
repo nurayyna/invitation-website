@@ -64,7 +64,7 @@ export default function Opening() {
       <div className="opening__ground" aria-hidden="true">
         <img className="keepsake lace-curtain" data-ground src="/assets/keepsakes/lace-drape.webp" alt="" />
         <span className="keepsake ground__bouquet ground__bouquet--a" data-ground>
-          <img src="/assets/opening/bouquet-burgundy.webp" alt="" />
+          <img src="/assets/opening/bouquet-white.webp" alt="" />
         </span>
         <span className="keepsake ground__bouquet ground__bouquet--b" data-ground>
           <img src="/assets/opening/florals-burgundy.webp" alt="" />
@@ -87,11 +87,20 @@ export default function Opening() {
       </div>
 
       {/* Foreground: nearest the camera, first to leave the frame */}
-      <span className="opening__fg opening__fg--drape" data-fg="1" data-fg-y="0" aria-hidden="true">
+      <span className="opening__fg opening__fg--band opening__fg--left" data-fg="-0.55" data-fg-y="0" aria-hidden="true">
+        <img src="/assets/opening/lace-band-burgundy.webp" alt="" />
+      </span>
+      <span className="opening__fg opening__fg--band opening__fg--right" data-fg="0.55" data-fg-y="0" aria-hidden="true">
+        <img src="/assets/opening/lace-band-burgundy.webp" alt="" />
+      </span>
+      <span className="opening__fg opening__fg--drape opening__fg--left" data-fg="-1" data-fg-y="0" aria-hidden="true">
+        <img src="/assets/keepsakes/lace-drape.webp" alt="" />
+      </span>
+      <span className="opening__fg opening__fg--drape opening__fg--right" data-fg="1" data-fg-y="0" aria-hidden="true">
         <img src="/assets/keepsakes/lace-drape.webp" alt="" />
       </span>
       <span className="opening__fg opening__fg--bouquet" data-fg="-1" data-fg-y="1" aria-hidden="true">
-        <img src="/assets/opening/bouquet-white.webp" alt="" />
+        <img src="/assets/opening/bouquet-burgundy.webp" alt="" />
       </span>
 
       <div className="opening__vignette" aria-hidden="true" />
