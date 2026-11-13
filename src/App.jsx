@@ -74,7 +74,7 @@ export default function App() {
       />
 
       <audio ref={audioRef} loop preload="none">
-        <source src="/assets/background.mp3" type="audio/mpeg" />
+        <source src="/assets/nanti-kita-seperti-ini.mp3" type="audio/mpeg" />
       </audio>
     </>
   )
