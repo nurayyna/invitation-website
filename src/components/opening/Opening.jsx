@@ -64,10 +64,10 @@ export default function Opening() {
       <div className="opening__ground" aria-hidden="true">
         <img className="keepsake lace-curtain" data-ground src="/assets/keepsakes/lace-drape.webp" alt="" />
         <span className="keepsake ground__bouquet ground__bouquet--a" data-ground>
-          <img src="/assets/keepsakes/bouquet.webp" alt="" />
+          <img src="/assets/opening/bouquet-burgundy.webp" alt="" />
         </span>
         <span className="keepsake ground__bouquet ground__bouquet--b" data-ground>
-          <img src="/assets/keepsakes/bouquet.webp" alt="" />
+          <img src="/assets/opening/florals-burgundy.webp" alt="" />
         </span>
       </div>
 
@@ -79,6 +79,7 @@ export default function Opening() {
 
       {/* Lettering on the flap. The real heading is the names on the card. */}
       <div className="opening__title" data-before aria-hidden="true">
+        <img className="opening__garland" src="/assets/opening/bow-garland.webp" alt="" />
         <p className="opening__eyebrow">A Wedding Invitation</p>
         <p className="opening__names">
           {couple.first} <span>&amp;</span> {couple.second}
@@ -90,7 +91,7 @@ export default function Opening() {
         <img src="/assets/keepsakes/lace-drape.webp" alt="" />
       </span>
       <span className="opening__fg opening__fg--bouquet" data-fg="-1" data-fg-y="1" aria-hidden="true">
-        <img src="/assets/keepsakes/bouquet.webp" alt="" />
+        <img src="/assets/opening/bouquet-white.webp" alt="" />
       </span>
 
       <div className="opening__vignette" aria-hidden="true" />

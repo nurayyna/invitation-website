@@ -40,7 +40,7 @@ export const EnvelopeFront = forwardRef(function EnvelopeFront(_, ref) {
       <div className="flap" data-flap="outer">
         <div className="env__plane flap__paper" />
         <LaceEdges />
-        <img className="flap__seal" src="/assets/opening/wax-seal.webp" alt="" draggable="false" />
+        <img className="flap__seal" src="/assets/opening/seal-rose.webp" alt="" draggable="false" />
       </div>
     </div>
   )

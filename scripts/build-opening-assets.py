@@ -2,11 +2,12 @@
 /assets.  Run:  python3 scripts/build-opening-assets.py
 Outputs to public/assets/opening/:
   lace-trim.webp  straight, horizontally tileable lace edging (scallops down)
-  wax-seal.webp   the gold seal, cut out from its studio background
+  seal-rose.webp, bow-garland.webp, bouquet-*.webp, florals-*.webp
+                  supplied elements, trimmed to their content
 The envelope itself, including its paper grain, is drawn in CSS (see
 opening.css) so it can fill any screen without repeating or blurring."""
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageChops
+from PIL import Image
 
 SRC, OUT = 'assets', 'public/assets/opening'
 IVORY = np.array([247, 241, 230], float)
@@ -19,18 +20,16 @@ trim = Image.fromarray(np.dstack([rgb, alpha * 255]).astype('uint8'), 'RGBA').tr
 trim.save(f'{OUT}/lace-trim.webp', quality=82, method=6)
 print('lace-trim', trim.size)
 
-# ── Wax seal: knock out the white studio background ─────────────────────────
-seal = Image.open(f'{SRC}/wax-seal-2.jpg').convert('RGB')
-r, g, b = seal.split()
-darkest = ImageChops.darker(ImageChops.darker(r, g), b)
-al = darkest.point(lambda v: 255 if v < 236 else max(0, int(255 * (252 - v) / 16)))
-bgmask = al.point(lambda v: 0 if v < 128 else 255)
-for seed in [(0, 0), (seal.width - 1, 0), (0, seal.height - 1), (seal.width - 1, seal.height - 1)]:
-    ImageDraw.floodfill(bgmask, seed, 128)
-outside = bgmask.point(lambda v: 255 if v == 128 else 0).filter(ImageFilter.MaxFilter(5))
-al = ImageChops.lighter(al, ImageChops.invert(outside)).filter(ImageFilter.GaussianBlur(0.8))
-seal.putalpha(al)
-seal = seal.crop(seal.getbbox())
-seal.thumbnail((480, 480), Image.LANCZOS)
-seal.save(f'{OUT}/wax-seal.webp', quality=88, method=6)
-print('seal', seal.size)
+# ── Elements supplied in public/assets/elements: trim to content, ship as WebP ─
+ELEMENTS = 'public/assets/elements'
+for src_name, out_name in [
+    ('wax-seal-burgundy-gold-rose', 'seal-rose'),          # the seal on the flap
+    ('bow-garland-ivory',           'bow-garland'),        # swag above the names
+    ('bouquet-cascade-white',       'bouquet-white'),      # foreground, sealed scene
+    ('bouquet-cascade-burgundy',    'bouquet-burgundy'),   # on the table, bottom-left
+    ('florals-cluster-burgundy',    'florals-burgundy'),   # on the table, top-right
+]:
+    im = Image.open(f'{ELEMENTS}/{src_name}.png').convert('RGBA')
+    im = im.crop(im.getbbox())
+    im.save(f'{OUT}/{out_name}.webp', quality=88, method=6)
+    print(out_name, im.size)
