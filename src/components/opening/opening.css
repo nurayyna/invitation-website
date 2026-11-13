@@ -4,7 +4,7 @@
    composition holds from a phone to a cinema display.
 
    Layers, far → near:  ground · envelope back · card · envelope front ·
-                        lettering · foreground lace + florals · vignette · UI   */
+                        lettering · foreground lace · vignette · UI   */
 
 .opening {
   /* Envelope: at least as wide as the screen, and never so narrow that the
@@ -73,12 +73,7 @@
   max-width: none;
   height: auto;
 }
-.ground__bouquet { width: clamp(10rem, 19vw, 19rem); }
-.ground__bouquet img, .opening__fg img { display: block; width: 100%; max-width: none; }
-.ground__bouquet--a { left: clamp(-1.5rem, 1vw, 2rem); bottom: -22%; }
-.ground__bouquet--a img { rotate: 14deg; }
-.ground__bouquet--b { right: clamp(-3rem, -2vw, -1rem); top: -7%; width: clamp(10rem, 18vw, 18rem); }
-.ground__bouquet--b img { rotate: -24deg; }
+.opening__fg img { display: block; width: 100%; max-width: none; }
 
 /* ── Stage ────────────────────────────────────────────────────────────────── */
 
@@ -247,18 +242,17 @@
   width: var(--band-w);
   filter: drop-shadow(0 0.5rem 0.7rem rgba(24, 2, 8, 0.6));
 }
-.opening__fg--band img { height: 100%; object-fit: fill; }
+.opening__fg--band::before {     /* on a pseudo-element: GSAP owns the span's transform */
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* repeated at its natural proportions — never stretched to the screen */
+  background: url('/assets/opening/lace-band-burgundy.webp') center top / 100% auto repeat-y;
+}
 .opening__fg--band.opening__fg--left  { left: calc(var(--band-w) * -0.36); }
 .opening__fg--band.opening__fg--right { right: calc(var(--band-w) * -0.36); }
-.opening__fg--band.opening__fg--right img { scale: -1 1; }
+.opening__fg--band.opening__fg--right::before { scale: -1 1; }
 
-.opening__fg--bouquet {
-  left: clamp(-3.5rem, -3vw, -1.25rem);
-  bottom: -26%;
-  width: clamp(10rem, 19vw, 19rem);
-  filter: blur(0.6px) drop-shadow(0 1.2rem 1.4rem rgba(24, 2, 8, 0.6));
-}
-.opening__fg--bouquet img { rotate: 15deg; }
 
 .opening__vignette {
   position: absolute;
@@ -454,11 +448,8 @@
 
   .opening { --drape-hide: 0.44; }
   .opening__title { top: 8svh; }
-  .opening__fg--bouquet { width: 36vw; bottom: -16%; }
   .opening__hint { bottom: 21svh; }
   .opening__fg--band { --band-w: 3.5rem; }
-  .ground__bouquet { width: 36vw; }
-  .ground__bouquet--a { bottom: -14%; }
 }
 
 /* Very short screens (landscape phones) */

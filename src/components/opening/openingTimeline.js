@@ -24,7 +24,6 @@ const parts = (els) => {
     after:     q('[data-after]'),
     before:    q('[data-before]'),
     fg:        q('[data-fg]'),
-    ground:    q('[data-ground]'),
     env:       [els.back, els.front],
   }
 }
@@ -96,7 +95,6 @@ export function buildScrollOpening(els) {
     // 3 · card drawn out, envelope falls away (the open flap passes through)
     .fromTo(card, { y: tucked }, { y: 0, duration: 3.4, ease: ease.fold, immediateRender: true }, 4.3)
     .to(p.env, { y: () => vh() * 2.05, scale: 1.3, duration: 3.6, ease: ease.fold }, 4.3)
-    .fromTo(p.ground, { y: () => vh() * 0.08, scale: 1.08 }, { y: 0, scale: 1, duration: 3.6, ease: ease.settle }, 4.3)
 
     // 4 · the card comes forward; the names are written
     .fromTo(card, { scale: 0.86 }, { scale: 1, duration: 2.6, ease: ease.fold, immediateRender: true }, 5.3)

@@ -2,7 +2,7 @@
 /assets.  Run:  python3 scripts/build-opening-assets.py
 Outputs to public/assets/opening/:
   lace-trim.webp  straight, horizontally tileable lace edging (scallops down)
-  seal-rose.webp, bow-garland.webp, bouquet-*.webp, florals-*.webp
+  seal-rose.webp, bow-garland.webp
                   supplied elements, trimmed to their content
 The envelope itself, including its paper grain, is drawn in CSS (see
 opening.css) so it can fill any screen without repeating or blurring."""
@@ -25,12 +25,19 @@ ELEMENTS = 'public/assets/elements'
 for src_name, out_name in [
     ('wax-seal-burgundy-gold-rose', 'seal-rose'),          # the seal on the flap
     ('bow-garland-ivory',           'bow-garland'),        # swag above the names
-    ('bouquet-cascade-white',       'bouquet-white'),      # foreground, sealed scene
-    ('bouquet-cascade-burgundy',    'bouquet-burgundy'),   # on the table, bottom-left
-    ('florals-cluster-burgundy',    'florals-burgundy'),   # on the table, top-right
-    ('lace-trim-burgundy',          'lace-band-burgundy'), # tonal lace behind the white curtains
 ]:
     im = Image.open(f'{ELEMENTS}/{src_name}.png').convert('RGBA')
     im = im.crop(im.getbbox())
     im.save(f'{OUT}/{out_name}.webp', quality=88, method=6)
     print(out_name, im.size)
+
+# ── Burgundy lace band: kept at its natural proportions and repeated down the
+#    screen in CSS. Each tile is the strip followed by its mirror image, so
+#    where tiles meet the pattern continues instead of jumping.
+band = Image.open(f'{ELEMENTS}/lace-trim-burgundy.png').convert('RGBA')
+band = band.crop(band.getbbox())
+tile = Image.new('RGBA', (band.width, band.height * 2))
+tile.paste(band, (0, 0))
+tile.paste(band.transpose(Image.FLIP_TOP_BOTTOM), (0, band.height))
+tile.save(f'{OUT}/lace-band-burgundy.webp', quality=86, method=6)
+print('lace-band-burgundy', tile.size, 'aspect', round(tile.width / tile.height, 4))
