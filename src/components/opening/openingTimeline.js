@@ -1,88 +1,48 @@
-// Choreography for the invitation opening. No React, no content — it receives
-// DOM nodes and returns GSAP timelines, so the motion can be tuned in isolation.
+// Choreography for the scroll-driven opening. No React, no content — it takes
+// DOM nodes and wires one scrubbed, pinned GSAP timeline to the scroll:
+//
+//   0   the camera eases in; title and foreground drift out of frame
+//   1   the seal gives
+//   2   the flap swings up towards the viewer and over the top
+//   3   the card is drawn out while the envelope falls away below
+//   4   the card comes forward; the names are written
+//
 import { gsap, ease } from '../../lib/motion'
-import { ENVELOPE } from './envelopeGeometry'
+
+const SCROLL_LENGTH = 3.4      // viewport-heights of scrolling the scene lasts
+const FLAP_SHADOW = 'drop-shadow(0 0.5rem 0.9rem rgba(24, 2, 8, 0.6))'
 
 const parts = (els) => {
   const q = gsap.utils.selector(els.section)
   return {
     flapOuter: q('[data-flap="outer"]')[0],
     flapInner: q('[data-flap="inner"]')[0],
-    seal:      q('.envelope__seal')[0],
+    seal:      q('.flap__seal')[0],
     names:     q('[data-anim="names"]')[0],
     rule:      q('[data-anim="rule"]')[0],
     print:     q('[data-anim="print"]'),
     after:     q('[data-after]'),
+    before:    q('[data-before]'),
+    fg:        q('[data-fg]'),
     env:       [els.back, els.front],
   }
 }
 
-// Where the card sits while tucked inside the envelope.
-function restPose({ front, card }) {
-  return {
-    scale: (front.offsetWidth * ENVELOPE.cardFit) / card.offsetWidth,
-    y: front.offsetHeight * ENVELOPE.cardDrop,
-  }
-}
-
-/** Sealed-state layout. Safe to call again on resize. */
-export function placeSealed(els) {
-  const { flapOuter, flapInner, after } = parts(els)
-  gsap.set(els.card, restPose(els))
-  gsap.set([flapOuter, flapInner], {
-    transformPerspective: els.front.offsetWidth * 2.2,
-    transformOrigin: `50% ${ENVELOPE.hingeY}`,
-  })
-  gsap.set(after, { autoAlpha: 0 })
-}
-
-/** The envelope arriving on screen + its resting float. */
-export function buildEntrance(els, { reduced }) {
-  const { env } = parts(els)
-  const tl = gsap.timeline({ defaults: { ease: ease.settle } })
-
-  if (reduced) {
-    return tl.from([...env, els.intro, els.controls], { autoAlpha: 0, duration: 0.4 })
-  }
-
-  tl.from(env, { autoAlpha: 0, y: 28, duration: 1.6 }, 0)
-    .from(els.intro.children, { autoAlpha: 0, y: 14, duration: 1.1, stagger: 0.14 }, 0.35)
-    .from(els.controls, { autoAlpha: 0, y: 10, duration: 0.9 }, 1.0)
-  return tl
-}
-
-export function buildFloat(els) {
-  const { env } = parts(els)
-  return gsap.to(env, { y: -6, duration: 3.4, ease: 'sine.inOut', yoyo: true, repeat: -1 })
-}
-
-/** Seal → flap → card → hero. Returned paused; play() or progress(1) to skip. */
-export function buildOpening(els, { reduced, onComplete }) {
+/** Reduced motion: no scene, just the invitation as it ends up. */
+export function showOpened(els) {
   const p = parts(els)
-  const { section, intro, controls, card } = els
-  const tl = gsap.timeline({
-    paused: true,
-    onComplete() {
-      // Hand the card back to CSS so the hero stays correct on resize.
-      gsap.set([card, p.names, p.rule, ...p.print], { clearProps: 'all' })
-      onComplete?.()
-    },
-  })
+  gsap.set([...p.env, ...p.before, ...p.fg], { autoAlpha: 0 })
+  gsap.set(p.after, { autoAlpha: 1 })
+}
 
-  if (reduced) {
-    return tl
-      .to([intro, controls, card, ...p.env], { autoAlpha: 0, duration: 0.3, ease: 'none' })
-      .set(card, { scale: 1, y: 0 })
-      .to([card, ...p.after], { autoAlpha: 1, duration: 0.4, ease: 'none' })
-  }
+/** Returns the scrubbed timeline; its .scrollTrigger exposes start/end. */
+export function buildScrollOpening(els) {
+  const p = parts(els)
+  const { section, card } = els
+  const vh = () => section.clientHeight
 
-  const envH   = els.front.offsetHeight
-  const vh     = section.clientHeight
-  const rest   = restPose(els)
-  const cardHs = card.offsetHeight * rest.scale
-  // Card rises as far as the viewport allows; the envelope sinks to make up the rest.
-  const cardUp  = Math.min(envH * 0.62, Math.max(0, vh / 2 - cardHs / 2 - 12))
-  const envDown = envH * 0.97 - cardUp
+  gsap.set([p.flapOuter, p.flapInner], { transformPerspective: 1800, transformOrigin: '50% 0%' })
+  gsap.set(p.env, { transformOrigin: '50% 55%' })
 
   // One value drives both flap faces so they can never drift apart.
   const swing = { angle: 0 }
@@ -93,40 +53,59 @@ export function buildOpening(els, { reduced, onComplete }) {
     p.flapOuter.style.visibility = outward ? 'visible' : 'hidden'
     p.flapInner.style.visibility = outward ? 'hidden' : 'visible'
     // Paper darkens as it turns edge-on to the light.
-    const shade = outward ? 1 - 0.32 * (a / 90) : 0.7 + 0.3 * ((a - 90) / 90)
-    ;(outward ? p.flapOuter : p.flapInner).style.filter = `brightness(${shade.toFixed(3)})`
+    const shade = outward ? 1 - 0.3 * (a / 90) : 0.72 + 0.28 * ((a - 90) / 90)
+    ;(outward ? p.flapOuter : p.flapInner).style.filter = `brightness(${shade.toFixed(3)}) ${FLAP_SHADOW}`
   }
 
-  tl.addLabel('seal', 0)
-    .to([intro, controls], { autoAlpha: 0, y: -8, duration: 0.6, ease: ease.leave, stagger: 0.05 }, 'seal')
-    .to(p.env, { y: 0, duration: 0.5, ease: ease.settle }, 'seal')
-    // 1 · the seal is pressed, then gives
-    .to(p.seal, { scale: 0.92, duration: 0.24, ease: 'power2.in' }, 'seal+=0.2')
-    .to(p.seal, { scale: 1, rotation: -4, duration: 0.7, ease: ease.settle }, '>')
+  // Where the card waits inside the pocket: its top edge ~30% down the screen.
+  const tucked = () => card.offsetHeight * 0.43 - vh() * 0.2
 
-    // 2 · the flap unfolds
-    .addLabel('flap', 'seal+=0.95')
-    .to(swing, { angle: 180, duration: 1.6, ease: ease.fold, onUpdate: renderFlap }, 'flap')
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: {
+      trigger: section,
+      start: 'top top',
+      end: () => `+=${vh() * SCROLL_LENGTH}`,
+      pin: true,
+      scrub: 0.8,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+    },
+  })
 
-    // 3 · the card is drawn out
-    .addLabel('rise', 'flap+=1.25')
-    .to(card, { y: -cardUp, duration: 1.7, ease: ease.paper }, 'rise')
-    .to(p.env, { y: envDown, duration: 1.7, ease: ease.paper }, 'rise')
+  tl
+    // 0 · camera eases in; 2.5D parallax — nearer layers travel further
+    .to(p.env, { scale: 1.07, duration: 2, ease: 'power1.inOut' }, 0)
+    .to(p.before, { autoAlpha: 0, y: () => vh() * -0.05, duration: 1.1, stagger: 0.08 }, 0.15)
+    .to(p.fg, {
+      scale: 1.55,
+      xPercent: (i, el) => Number(el.dataset.fg) * 38,
+      yPercent: (i, el) => (el.dataset.fgY ? Number(el.dataset.fgY) : 0) * 38,
+      duration: 2.4, ease: 'power1.in',
+    }, 0)
+    .to(p.fg, { autoAlpha: 0, duration: 1 }, 1.4)
 
-    // 4 · the envelope falls away, the card comes forward
-    .addLabel('present', 'rise+=1.55')
-    .to(p.env, { y: envDown + vh * 0.45, autoAlpha: 0, duration: 1.2, ease: ease.leave }, 'present')
-    .to(card, { y: 0, scale: 1, duration: 1.6, ease: ease.paper }, 'present')
+    // 1 · the seal gives
+    .to(p.seal, { scale: 0.93, duration: 0.3, ease: 'power2.in' }, 1.25)
+    .to(p.seal, { scale: 1, rotation: -5, duration: 0.5, ease: ease.settle }, 1.55)
 
-    // 5 · the names are written, the rest of the page arrives
-    .addLabel('ink', 'present+=1.05')
+    // 2 · the flap swings up and over
+    .to(swing, { angle: 180, duration: 2.9, ease: 'power1.inOut', onUpdate: renderFlap }, 1.9)
+
+    // 3 · card drawn out, envelope falls away (the open flap passes through)
+    .fromTo(card, { y: tucked }, { y: 0, duration: 3.4, ease: ease.fold, immediateRender: true }, 4.3)
+    .to(p.env, { y: () => vh() * 2.05, scale: 1.3, duration: 3.6, ease: ease.fold }, 4.3)
+
+    // 4 · the card comes forward; the names are written
+    .fromTo(card, { scale: 0.86 }, { scale: 1, duration: 2.6, ease: ease.fold, immediateRender: true }, 5.3)
     .fromTo(p.names,
       { clipPath: 'inset(-20% 105% -20% -5%)' },
-      { clipPath: 'inset(-20% -5% -20% -5%)', duration: 1.6, ease: ease.ink }, 'ink')
-    .from(p.print, { autoAlpha: 0, y: 8, duration: 0.9, stagger: 0.16, ease: ease.settle }, 'ink+=0.2')
-    .from(p.rule, { scaleX: 0, autoAlpha: 0, duration: 1.0, ease: ease.fold }, 'ink+=0.7')
-    .fromTo(p.after, { autoAlpha: 0, y: 14 },
-      { autoAlpha: 1, y: 0, duration: 1.2, stagger: 0.15, ease: ease.settle }, 'ink+=0.6')
+      { clipPath: 'inset(-20% -5% -20% -5%)', duration: 1.7, ease: ease.ink }, 7.3)
+    .from(p.print, { autoAlpha: 0, y: 8, duration: 0.8, stagger: 0.18, ease: ease.settle }, 7.4)
+    .from(p.rule, { scaleX: 0, autoAlpha: 0, duration: 0.9, ease: ease.fold }, 7.9)
+    .fromTo(p.after, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.8 }, 8.6)
+    .set(p.env, { autoAlpha: 0 }, 8.2)
+    .to({}, { duration: 0.6 })          // a breath on the finished card before the page moves on
 
   return tl
 }

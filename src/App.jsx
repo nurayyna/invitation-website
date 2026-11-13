@@ -14,28 +14,33 @@ import Closing          from './components/sections/Closing'
 import MusicButton      from './components/MusicButton'
 
 export default function App() {
-  const [opened, setOpened]             = useState(false)
   const [musicPlaying, setMusicPlaying] = useState(false)
   const audioRef                        = useRef(null)
-  const pageRef                         = useRef(null)
 
-  // Until the invitation is opened the page below is held still and kept out
-  // of the tab order, so the envelope is the only thing to interact with.
-  useEffect(() => {
-    history.scrollRestoration = 'manual'
-    if (!opened) window.scrollTo(0, 0)
-    document.documentElement.classList.toggle('is-sealed', !opened)
-    if (pageRef.current) pageRef.current.inert = !opened
-    return () => document.documentElement.classList.remove('is-sealed')
-  }, [opened])
-
-  // Scroll positions are measured once type has loaded and again when the
-  // page is released, so reveals fire where they should.
+  // Scroll positions are measured again once type has loaded, so the pinned
+  // opening and the reveals below it fire where they should.
   useEffect(() => {
     let live = true
+    history.scrollRestoration = 'manual'
     document.fonts.ready.then(() => live && ScrollTrigger.refresh())
     return () => { live = false }
-  }, [opened])
+  }, [])
+
+  // Browsers only allow sound after a tap, click or key press — scrolling alone
+  // does not count — so the music starts on the guest's first such gesture.
+  useEffect(() => {
+    const start = (e) => {
+      if (e.target.closest?.('.music')) return     // the toggle speaks for itself
+      setMusicPlaying(true)
+    }
+    const opts = { once: true, passive: true }
+    window.addEventListener('pointerup', start, opts)
+    window.addEventListener('keydown', start, opts)
+    return () => {
+      window.removeEventListener('pointerup', start)
+      window.removeEventListener('keydown', start)
+    }
+  }, [])
 
   // Sync audio element with musicPlaying state
   useEffect(() => {
@@ -52,12 +57,9 @@ export default function App() {
   return (
     <>
       <Navigation />
-      <Opening
-        onOpenStart={() => setMusicPlaying(true)}
-        onOpened={() => setOpened(true)}
-      />
+      <Opening />
 
-      <main ref={pageRef}>
+      <main>
         <Garden />
         <Story />
         <Invitation />

@@ -22,15 +22,8 @@
     font-weight: 300;
   }
 
-  /* Page is held still until the invitation has been opened (or skipped). */
-  html.is-sealed,
-  html.is-sealed body {
-    overflow: hidden;
-    overscroll-behavior: none;
-  }
-
   @media (prefers-reduced-motion: no-preference) {
-    html:not(.is-sealed) {
+    html {
       scroll-behavior: smooth;
     }
   }

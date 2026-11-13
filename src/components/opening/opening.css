@@ -1,13 +1,32 @@
-/* ── Opening scene / hero ─────────────────────────────────────────────────── */
+/* ── Opening scene ────────────────────────────────────────────────────────────
+   The viewport is a close-up of the envelope: its paper runs edge to edge and
+   is allowed to crop. Everything is sized from the viewport, so the same
+   composition holds from a phone to a cinema display.
+
+   Layers, far → near:  ground · envelope back · card · envelope front ·
+                        lettering · foreground lace · vignette · UI   */
 
 .opening {
-  /* Everything is sized from two measurements so envelope, card and type
-     stay in proportion on any screen. */
-  --env-w:  min(600px, 84vw, 66svh);
-  --env-h:  calc(var(--env-w) / 1.4493);
-  --card-w: min(720px, 84vw, 96svh);
-  --card-h: calc(var(--card-w) / 1.42);
-  --u:      calc(var(--card-w) / 100);
+  /* Envelope: at least as wide as the screen, and never so narrow that the
+     flap's V becomes steep — on portrait screens the sides simply crop. */
+  --env-w: max(100vw, 125svh);
+  --half:  calc(var(--env-w) / 2);
+  --tip:   57svh;                                  /* point of the flap */
+  --trim:  clamp(3.75rem, 6.5vw, 6rem);            /* lace band along the flap */
+  --seal:  clamp(6.5rem, 5vw + 7svh, 11rem);            /* width of the oval seal */
+
+  /* Card: landscape by default, portrait on tall screens (see below) */
+  --card-ar: 1.42;
+  --card-w:  min(820px, 64vw, 96svh);
+  --u:       calc(var(--card-w) / 100);
+
+  /* One sheet of paper, tinted per surface: fine laid fibres + soft mottling,
+     generated (not photographed) so it never repeats visibly or blurs. */
+  --paper-tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='f' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.09 .5' numOctaves='3' seed='7' stitchTiles='stitch' result='fib'/%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='2' seed='3' stitchTiles='stitch' result='mot'/%3E%3CfeComposite in='fib' in2='mot' operator='arithmetic' k2='.7' k3='.5' k4='-.1'/%3E%3CfeColorMatrix values='.33 .33 .33 0 0 .33 .33 .33 0 0 .33 .33 .33 0 0 0 0 0 0 1'/%3E%3CfeComponentTransfer%3E%3CfeFuncR type='linear' slope='1.05' intercept='-.03'/%3E%3CfeFuncG type='linear' slope='1.05' intercept='-.03'/%3E%3CfeFuncB type='linear' slope='1.05' intercept='-.03'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  /* Lace curtain: a tall edge piece hung past the top and bottom of the
+     scene, most of it off-screen, so only its scalloped inner edge shows. */
+  --drape-w:    calc(112svh * 1.187);
+  --drape-hide: 0.37;
 
   position: relative;
   height: 100svh;
@@ -18,16 +37,26 @@
   background: var(--forest);
 }
 
-.opening__atmosphere {
+@media (max-aspect-ratio: 4 / 5) {
+  .opening {
+    --card-ar: 0.7;
+    --card-w:  min(78vw, 46svh);
+    --u:       calc(var(--card-w) / 58);
+  }
+}
+
+/* ── Ground: the dressed table the card is finally laid on ────────────────── */
+
+.opening__ground {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   background:
-    radial-gradient(ellipse 70% 55% at 50% 46%, rgba(165, 172, 140, 0.16), transparent 70%),
-    radial-gradient(ellipse 120% 90% at 50% 50%, transparent 55%, var(--forest-deep) 100%),
-    linear-gradient(180deg, var(--forest-soft) 0%, var(--forest) 40%, var(--forest) 100%);
+    radial-gradient(ellipse 70% 55% at 50% 48%, rgba(165, 172, 140, 0.18), transparent 70%),
+    radial-gradient(ellipse 120% 90% at 50% 50%, transparent 50%, var(--forest-deep) 100%),
+    var(--forest);
 }
-.opening__atmosphere::after {
+.opening__ground::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -35,61 +64,290 @@
   opacity: 0.5;
   mix-blend-mode: soft-light;
 }
-
-/* ── Stage: envelope back · card · envelope front share one grid cell ─────── */
-
-.opening__stage {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  pointer-events: none;            /* the stage must never cover the controls */
+/* Placement lives on these wrappers / plain offsets, never on CSS transform
+   properties, because GSAP owns the transforms of anything it animates. */
+.lace-curtain {
+  top: -6svh;
+  left: calc(var(--drape-w) * var(--drape-hide) * -1);
+  width: var(--drape-w);
+  max-width: none;
+  height: auto;
 }
-.opening__stage > * { grid-area: 1 / 1; }
-.opening__stage > :is(.card, .envelope--front) { pointer-events: auto; }
+.opening__fg img { display: block; width: 100%; max-width: none; }
 
-.envelope {
-  position: relative;
+/* ── Stage ────────────────────────────────────────────────────────────────── */
+
+.opening__stage { position: absolute; inset: 0; z-index: 1; }
+
+.env {
+  position: absolute;
+  top: 0;
+  left: 50%;
   width: var(--env-w);
-  aspect-ratio: 1.4493;
+  height: 100%;
+  translate: -50% 0;
+  will-change: transform;
 }
-.envelope--back  { z-index: 1; filter: drop-shadow(0 28px 34px rgba(0, 0, 0, 0.5)); }
-.envelope--front { z-index: 3; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.opening[data-state='opening'] .envelope--front { cursor: default; }
+.env--back  { z-index: 1; }
+.env--front { z-index: 3; }
 
-.envelope__layer {
+/* A surface of the envelope: shared paper, tinted and shaded per plane */
+.env__plane {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  user-select: none;
-  pointer-events: none;
+  background-color: var(--paper, var(--burgundy));
+  background-image: var(--shade, linear-gradient(transparent, transparent)), var(--paper-tex);
+  background-size: auto, 40rem 40rem;
+  background-blend-mode: normal, soft-light;
 }
-.envelope__flap { position: absolute; inset: 0; will-change: transform; }
-.envelope__flap[data-flap='inner'] { visibility: hidden; }
 
-.envelope__seal {
+.env__interior {
+  --paper: #2E0A12;
+  --shade: linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.1) 60%);
+}
+
+/* Pocket: two side flaps under a bottom flap, meeting at the centre */
+.env__side--left {
+  --shade: linear-gradient(100deg, rgba(255, 220, 220, 0.07) 0%, rgba(20, 0, 6, 0.3) 100%);
+  clip-path: polygon(0 0, 50% 50%, 0 100%);
+}
+.env__side--right {
+  --shade: linear-gradient(260deg, rgba(255, 220, 220, 0.03) 0%, rgba(20, 0, 6, 0.36) 100%);
+  clip-path: polygon(100% 0, 50% 50%, 100% 100%);
+}
+.env__cast { position: absolute; inset: 0; filter: drop-shadow(0 -0.3rem 0.7rem rgba(24, 2, 8, 0.5)); }
+.env__bottom {
+  --shade: linear-gradient(0deg, rgba(20, 0, 6, 0.28) 0%, rgba(255, 225, 225, 0.08) 100%);
+  clip-path: polygon(0 100%, 50% 50%, 100% 100%);
+}
+
+/* The flap — one hinge along the top edge, two faces */
+.flap {
   position: absolute;
-  left: 38%;
-  top: 44%;
-  width: 24%;
-  user-select: none;
-  pointer-events: none;
-  filter: drop-shadow(0 0.25em 0.3em rgba(40, 8, 14, 0.55));
+  inset: 0;
+  filter: drop-shadow(0 0.5rem 0.9rem rgba(24, 2, 8, 0.6));
+  will-change: transform;
+}
+.flap[data-flap='inner'] { visibility: hidden; }
+
+.flap__paper {
+  --shade: linear-gradient(170deg, rgba(255, 225, 225, 0.12) 0%, rgba(255, 225, 225, 0) 45%, rgba(20, 0, 6, 0.22) 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 57%);
+}
+.flap__paper--inner { --paper: var(--burgundy-deep); --shade: none; }
+.flap__liner {
+  --paper: var(--sage);
+  --shade: linear-gradient(180deg, rgba(28, 53, 36, 0.28) 0%, rgba(255, 255, 255, 0.08) 100%);
+  clip-path: polygon(4.5% 0, 95.5% 0, 50% 51.8%);
 }
 
-/* Nothing shows until the artwork is decoded (see Opening.jsx) */
-.opening[data-ready='false'][data-state='sealed'] :is(.envelope, .card, .opening__intro, .opening__controls) {
-  visibility: hidden;
+/* Lace laid along both lower edges: a straight trim, rotated onto each edge.
+   Angle and length come from the same two numbers that shape the flap. */
+.flap__lace {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: hypot(var(--half), var(--tip));
+  height: var(--trim);
+  transform-origin: 0 0;
+  rotate: atan2(var(--tip), var(--half));
+  transform: translateY(-16%);                     /* hem sits on the paper, scallops hang free */
+  background: url('/assets/opening/lace-trim.webp') left top / auto 100% repeat-x;
+  filter: drop-shadow(0 0.15rem 0.2rem rgba(24, 2, 8, 0.45));
 }
+.flap__lace--right {
+  left: auto;
+  right: 0;
+  transform-origin: 100% 0;
+  rotate: calc(-1 * atan2(var(--tip), var(--half)));
+  background-position: right top;
+}
+
+.flap__seal {
+  position: absolute;
+  left: 50%;
+  top: var(--tip);
+  width: var(--seal);
+  translate: -50% -54%;
+  user-select: none;
+  filter: drop-shadow(0 0.4rem 0.5rem rgba(24, 2, 8, 0.6));
+}
+
+/* ── Lettering on the flap ────────────────────────────────────────────────── */
+
+.opening__title {
+  position: absolute;
+  inset-inline: 0;
+  top: clamp(1.5rem, 6.5svh, 4.75rem);
+  z-index: 2;
+  padding-inline: 1.5rem;
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 1px 14px rgba(24, 2, 8, 0.45);
+}
+.opening__garland {
+  display: block;
+  width: clamp(11rem, 21vw, 19.5rem);
+  margin: 0 auto clamp(0.6rem, 2.2svh, 1.4rem);
+  filter: drop-shadow(0 0.3rem 0.4rem rgba(24, 2, 8, 0.5));
+}
+.opening__eyebrow {
+  font-family: var(--font-display);
+  font-size: clamp(0.6875rem, 0.6rem + 0.35vw, 0.9375rem);
+  letter-spacing: 0.34em;
+  margin-right: -0.34em;
+  text-transform: uppercase;
+  color: #EAD9C8;
+}
+.opening__names {
+  margin-top: clamp(0.4rem, 1.6svh, 1rem);
+  font-family: var(--font-script);
+  font-size: clamp(2.75rem, 1.6rem + 4.2vw, 5.75rem);
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--ivory);
+}
+.opening__names span {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 0.6em;
+  color: #D9C08A;
+}
+
+/* ── Foreground: nearest the camera ───────────────────────────────────────── */
+
+.opening__fg {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+}
+/* White lace curtains down both edges (one piece, mirrored for the right) */
+.opening__fg--drape {
+  top: -6svh;
+  width: var(--drape-w);
+  filter: blur(0.6px) drop-shadow(0 1.2rem 1.4rem rgba(24, 2, 8, 0.55));
+}
+.opening__fg--drape.opening__fg--left  { left: calc(var(--drape-w) * var(--drape-hide) * -1); }
+.opening__fg--drape.opening__fg--right { right: calc(var(--drape-w) * var(--drape-hide) * -1); }
+.opening__fg--drape.opening__fg--right img { scale: -1 1; }
+
+/* Tonal burgundy lace hung just inside them: a second, deeper layer */
+.opening__fg--band {
+  top: -5svh;
+  height: 110svh;
+  --band-w: clamp(4rem, 9vw, 8.5rem);
+  width: var(--band-w);
+  filter: drop-shadow(0 0.5rem 0.7rem rgba(24, 2, 8, 0.6));
+}
+.opening__fg--band::before {     /* on a pseudo-element: GSAP owns the span's transform */
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* repeated at its natural proportions — never stretched to the screen */
+  background: url('/assets/opening/lace-band-burgundy.webp') center top / 100% auto repeat-y;
+}
+.opening__fg--band.opening__fg--left  { left: calc(var(--band-w) * -0.36); }
+.opening__fg--band.opening__fg--right { right: calc(var(--band-w) * -0.36); }
+.opening__fg--band.opening__fg--right::before { scale: -1 1; }
+
+
+.opening__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 18%, rgba(255, 236, 214, 0.1), transparent 70%),
+    radial-gradient(ellipse 95% 85% at 50% 48%, transparent 52%, rgba(14, 4, 6, 0.6) 100%);
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────────── */
+
+.opening__hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.25rem, 8svh, 4.5rem);
+  z-index: 5;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.6875rem, 0.62rem + 0.3vw, 0.875rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #EAD9C8;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.opening__hint:hover { color: var(--ivory); }
+.opening__hint-rule { width: clamp(1.5rem, 4vw, 3rem); height: 1px; background: #D9C08A; opacity: 0.7; }
+
+.opening__skip {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 5;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #EAD9C8;
+  background: rgba(46, 10, 18, 0.55);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.opening__skip:hover { background: rgba(46, 10, 18, 0.85); }
+
+.opening__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 0.5rem;
+  z-index: 5;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem 0;
+  text-indent: var(--track-label);
+  opacity: 0;
+  visibility: hidden;
+  transition: color 0.3s ease;
+}
+.opening__scroll:hover { color: var(--ivory); }
+.opening__scroll span { width: 1px; height: clamp(1rem, 4svh, 2.25rem); background: var(--gold); }
 
 /* ── The card ─────────────────────────────────────────────────────────────── */
 
-.card {
-  position: relative;
+.card-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   z-index: 2;
   width: var(--card-w);
-  aspect-ratio: 1.42;
+  translate: -50% -50%;
+  will-change: transform;
+}
+.card__lace {
+  --lace: calc(var(--u) * 3.4);
+  position: absolute;
+  inset: calc(var(--lace) * -0.86);
+}
+
+.card {
+  position: relative;
+  aspect-ratio: var(--card-ar);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -101,9 +359,7 @@
   background-image: var(--grain), linear-gradient(140deg, #FCF8F0 0%, var(--ivory) 45%, var(--ivory-shade) 100%);
   background-blend-mode: soft-light, normal;
   box-shadow: var(--shadow-paper);
-  will-change: transform;
 }
-.opening[data-state='open'] .card { will-change: auto; }
 
 /* double hairline frame */
 .card::before,
@@ -146,7 +402,7 @@
   white-space: nowrap;
   outline: none;
 }
-.card__amp {
+.card__names .card__amp {
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 300;
@@ -181,99 +437,25 @@
   opacity: 0.85;
 }
 
-/* ── Sealed-state typography + controls ───────────────────────────────────── */
+/* Portrait card: the names stack, and everything is set a little larger */
+@media (max-aspect-ratio: 4 / 5) {
+  .card { padding: calc(var(--u) * 7) calc(var(--u) * 6); }
+  .card__names { font-size: calc(var(--u) * 13.5); line-height: 1.05; margin-block: calc(var(--u) * 3) calc(var(--u) * 2.5); }
+  .card__names span { display: block; }
+  .card__names .card__amp { font-size: 0.5em; line-height: 1.5; }
+  .card__monogram { margin-bottom: calc(var(--u) * 5); }
+  .card__rule { margin-bottom: calc(var(--u) * 4); }
 
-.opening__intro {
-  position: absolute;
-  inset-inline: 0;
-  bottom: calc(50% + var(--env-h) / 2 + clamp(1.25rem, 4.5svh, 3rem));
-  padding-inline: 1.5rem;
-  text-align: center;
-}
-.opening__headline {
-  margin-top: 0.9rem;
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 300;
-  font-size: clamp(1.75rem, 1.1rem + 2.6vw, 3.25rem);
-  line-height: 1.1;
-  color: var(--ivory);
+  .opening { --drape-hide: 0.44; }
+  .opening__title { top: 8svh; }
+  .opening__hint { bottom: 21svh; }
+  .opening__fg--band { --band-w: 3.5rem; }
 }
 
-.opening__controls {
-  position: absolute;
-  inset-inline: 0;
-  top: calc(50% + var(--env-h) / 2 + clamp(1.25rem, 5svh, 3.25rem));
-  z-index: 5;
-  display: flex;
-  justify-content: center;
-}
-
-.opening__skip {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  z-index: 5;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  padding: 0 0.75rem;
-  font-family: var(--font-sans);
-  font-size: var(--text-label);
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--sage);
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-.opening__skip:hover { color: var(--ivory); }
-
-/* ── Hero furniture that arrives after opening ────────────────────────────── */
-
-.opening[data-state='sealed'] [data-after] { visibility: hidden; }
-
-.opening__topline {
-  position: absolute;
-  inset-inline: 0;
-  bottom: calc(50% + var(--card-h) / 2 + var(--u) * 3.6 + clamp(1rem, 3.5svh, 2.25rem));
-  text-align: center;
-}
-
-/* Lace edging that shows around the card, and bouquets laid over its corners */
-.opening__lace {
-  --lace: calc(var(--u) * 3.6);
-  z-index: 1;
-  width: calc(var(--card-w) + var(--lace) * 1.75);
-  height: calc(var(--card-h) + var(--lace) * 1.7);
-}
-.opening__florals {
-  position: relative;
-  z-index: 4;
-  width: var(--card-w);
-  height: var(--card-h);
-  pointer-events: none;
-}
-.opening__florals img { width: calc(var(--u) * 27); }
-.opening__florals img:first-child { right: calc(var(--u) * -7.5); top: calc(var(--u) * -17); rotate: 24deg; }
-.opening__florals img:last-child  { left: calc(var(--u) * -7.5); bottom: calc(var(--u) * -17); rotate: 204deg; }
-
-.opening__scroll {
-  position: absolute;
-  left: 50%;
-  bottom: 0.5rem;
-  translate: -50% 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.75rem 1rem 0;
-  text-indent: var(--track-label);
-  transition: color 0.3s ease;
-}
-.opening__scroll:hover { color: var(--ivory); }
-.opening__scroll span { width: 1px; height: clamp(1.25rem, 5svh, 2.75rem); background: var(--gold); }
-
-/* Very short screens (landscape phones): the envelope and button are enough */
+/* Very short screens (landscape phones) */
 @media (max-height: 30rem) {
-  .opening { --card-w: min(84vw, 84svh); }
-  .opening__headline, .opening__topline { display: none; }
+  .opening { --card-w: min(64vw, 88svh); --seal: 5.5rem; --trim: 3rem; }
+  .opening__eyebrow, .opening__garland { display: none; }
+  .opening__title { top: 1.25rem; }
+  .opening__names { font-size: 2.25rem; }
 }
