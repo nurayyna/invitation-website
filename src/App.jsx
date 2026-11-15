@@ -3,7 +3,6 @@ import { ScrollTrigger } from './lib/motion'
 
 import Opening          from './components/opening/Opening'
 import Navigation       from './components/Navigation'
-import KeepsakePassage  from './components/passage/KeepsakePassage'
 import KeepsakeTransition from './components/keepsake/KeepsakeTransition'
 import Garden           from './components/sections/Garden'
 import Story            from './components/sections/Story'
@@ -62,12 +61,11 @@ export default function App() {
       <Opening />
 
       <main>
-        {/* The invitation card leads straight into Our Story through the
-            keepsake passage; the English Garden follows the story. */}
-        <KeepsakePassage />
-        <Story />
         {/* Between sections the camera pulls back to the whole invitation
-            suite laid out as a flat-lay, and moves in on the next piece. */}
+            suite laid out as a flat-lay, and moves in on the next piece.
+            The first follows straight on from the opening's card. */}
+        <KeepsakeTransition from="card" to="story" />
+        <Story />
         <KeepsakeTransition from="story" to="garden" />
         <Garden />
         <KeepsakeTransition from="garden" to="invitation" />

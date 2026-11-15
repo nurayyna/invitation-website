@@ -36,6 +36,29 @@
 .kt.is-near .kt__paper,
 .kt.is-near .kt__vignette { will-change: opacity; }      /* fade on the GPU, never repaint */
 
+/* After the opening: laid over the opening's last screen (see the script) */
+.kt--after-opening[data-live] {
+  position: relative;
+  z-index: 2;
+  margin-top: calc(-1 * max(100svh, 22rem));         /* = the opening's height */
+}
+/* A twin of the opening's last frame: its card, lace and scroll cue, sized by
+   the opening's own variables (the .opening class), minus its box. */
+.kt .kt__replica {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  isolation: auto;
+  background: none;
+}
+.kt.is-near .kt__replica { will-change: transform, opacity; }
+.kt.is-near .kt__replica > .lace-curtain,
+.kt.is-near .kt__cue { will-change: opacity; }
+.kt__cue { opacity: 1; visibility: visible; }
+
 /* The paper of the section before / after, filling the view at either end */
 .kt .kt__paper {
   position: absolute;

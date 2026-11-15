@@ -15,6 +15,7 @@
 import { gsap, ScrollTrigger, DESKTOP } from '../../lib/motion'
 
 const SCROLL_LENGTH = { desktop: 1.35, mobile: 1.15 }   // viewport-heights each move lasts
+const OPENING_EXTRA = 0.45                               // …plus, after the opening, time to read the card
 const PAPER = [0.36, 0.8]   // fractions of the full zoom over which the close-up paper takes over,
                              // before the once-drawn flat-lay is magnified far enough to look soft
 
@@ -30,6 +31,12 @@ export function buildTransition(root, { from, to }) {
   const paperFrom = q('.kt__paper--from')[0]
   const paperTo   = q('.kt__paper--to')[0]
   const vignette  = q('.kt__vignette')[0]
+  // After the opening (from="card") the move starts on the invitation card
+  // itself: a full-size twin of the opening's last frame, which shrinks into
+  // the card at the heart of the flat-lay as the camera pulls back.
+  const fromCard = from === 'card'
+  const replica  = q('.kt__replica')[0]
+  const openingDressing = q('.kt__replica > .lace-curtain, .kt__cue')
 
   root.dataset.live = ''
 
@@ -52,7 +59,10 @@ export function buildTransition(root, { from, to }) {
     m.vh = stage.clientHeight
     m.cx = board.offsetLeft
     m.cy = board.offsetTop
-    m.a = focus(piece(from))
+    m.a = fromCard
+      ? { x: m.cx, y: m.cy, tilt: 0,      // the card lies square at the centre of the board
+          k: replica.querySelector('.card-wrap').offsetWidth / board.querySelector('.card-wrap').offsetWidth }
+      : focus(piece(from))
     m.b = focus(piece(to))
     alignEmboss()
   }
@@ -60,7 +70,7 @@ export function buildTransition(root, { from, to }) {
   // An embossed section's margins are a repeating relief: start the close-up
   // paper where the section above left off, so the pattern runs on unbroken.
   const alignEmboss = () => {
-    if (!paperFrom.classList.contains('section--emboss')) return
+    if (!paperFrom || !paperFrom.classList.contains('section--emboss')) return
     const above = document.getElementById(from)
     if (!above) return
     const sizes = getComputedStyle(paperFrom).backgroundSize.split(',').map((s) => parseFloat(s))
@@ -92,9 +102,23 @@ export function buildTransition(root, { from, to }) {
 
     // opacity only, on layers of their own: nothing is repainted
     const close = smooth(PAPER[0], PAPER[1], depth)
-    paperFrom.style.opacity = out ? close * 0.999 : 0
-    paperTo.style.opacity   = out ? 0 : close * 0.999
-    vignette.style.opacity  = 1 - close
+    paperTo.style.opacity = out ? 0 : close * 0.999
+    if (!fromCard) {
+      paperFrom.style.opacity = out ? close * 0.999 : 0
+      vignette.style.opacity  = 1 - close
+      return
+    }
+    // From the card: the flat-lay comes up around the full-size card as the
+    // camera starts back, and only then is that card exchanged for the one
+    // on the table, which by now is the same size in the same place.
+    const around = out ? 1 - smooth(0.74, 0.98, depth) : 1
+    for (const { el } of layers) el.style.opacity = Math.max(0.01, around)
+    replica.style.opacity   = out ? smooth(0.4, 0.66, depth) : 0
+    // the opening's lace curtain and scroll cue belong to its close-up only
+    const dressing = out ? smooth(0.86, 0.99, depth) : 0
+    for (const el of openingDressing) el.style.opacity = dressing
+    replica.style.transform = `scale(${out ? k / p.k : 1 / p.k})`
+    vignette.style.opacity  = out ? 1 : 1 - close
   }
 
   // ── Keeping it cheap ────────────────────────────────────────────────────
@@ -116,7 +140,13 @@ export function buildTransition(root, { from, to }) {
     warmId = setTimeout(() => { warming = false; render() }, WARM_MS)
   }
 
-  const length = () => m.vh * (window.matchMedia(DESKTOP).matches ? SCROLL_LENGTH.desktop : SCROLL_LENGTH.mobile)
+  const length = () => m.vh * (
+    (window.matchMedia(DESKTOP).matches ? SCROLL_LENGTH.desktop : SCROLL_LENGTH.mobile) + (fromCard ? OPENING_EXTRA : 0))
+  // After the opening the scene lies over the opening's last screen and is
+  // shown from the exact scroll position the opening ends on — until then the
+  // opening itself is on screen beneath, drawn the same. (Nearly, not fully,
+  // transparent, so the browser still prepares its layers.)
+  const show = (on) => { if (fromCard) root.style.opacity = on ? '' : '0.002' }
   const refreshInit = () => measure()
   ScrollTrigger.addEventListener('refreshInit', refreshInit)
 
@@ -131,7 +161,9 @@ export function buildTransition(root, { from, to }) {
       scrub: 0.6,
       anticipatePin: 1,
       invalidateOnRefresh: true,
-      onRefresh: render,
+      onEnter: () => show(true),
+      onLeaveBack: () => show(false),
+      onRefresh: (self) => { show(self.scroll() >= self.start); render() },
     },
   })
 
@@ -143,6 +175,7 @@ export function buildTransition(root, { from, to }) {
     onRefresh: (self) => { if (self.isActive !== root.classList.contains('is-near')) setNear(self.isActive) },
   })
 
+  if (fromCard) tl.to({}, { duration: 0.8 })          // the card rests, to be read
   tl
     .to(cam, { t: 1, duration: 2.2 })
     .to(cam, { t: 2, duration: 2.2 }, '+=0.45')     // the flat-lay rests in view
@@ -156,5 +189,6 @@ export function buildTransition(root, { from, to }) {
     near.kill()
     delete root.dataset.live
     root.classList.remove('is-near')
+    root.style.opacity = ''
   }
 }
