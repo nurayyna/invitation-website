@@ -102,7 +102,7 @@ export default function Opening() {
         Skip
       </button>
 
-      <a className="opening__scroll label" href="#garden" data-after>
+      <a className="opening__scroll label" href="#story" data-after>
         Scroll
         <span aria-hidden="true" />
       </a>

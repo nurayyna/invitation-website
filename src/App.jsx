@@ -3,6 +3,7 @@ import { ScrollTrigger } from './lib/motion'
 
 import Opening          from './components/opening/Opening'
 import Navigation       from './components/Navigation'
+import KeepsakePassage  from './components/passage/KeepsakePassage'
 import Garden           from './components/sections/Garden'
 import Story            from './components/sections/Story'
 import Invitation       from './components/sections/Invitation'
@@ -60,8 +61,11 @@ export default function App() {
       <Opening />
 
       <main>
-        <Garden />
+        {/* The invitation card leads straight into Our Story through the
+            keepsake passage; the English Garden follows the story. */}
+        <KeepsakePassage />
         <Story />
+        <Garden />
         <Invitation />
         <Events />
         <Venue />

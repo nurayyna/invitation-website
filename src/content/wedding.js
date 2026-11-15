@@ -33,6 +33,9 @@ export const wedding = {
 
   // Our Story — three chapters. Fill in title, text, photo and caption.
   story: {
+    // The couple's portrait found among the keepsakes between the invitation
+    // and Our Story — a portrait-format photo works best, e.g. '/photos/portrait.jpg'
+    portrait: null,
     intro: null,
     chapters: [
       { title: null, text: null, photo: null, caption: null },

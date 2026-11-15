@@ -1,0 +1,157 @@
+/* ── Invitation → Our Story: the keepsake passage ─────────────────────────────
+   A flat-lay of wedding keepsakes on the opening's table, seen from above.
+   Everything is placed in card widths (--card-w, from .opening) measured
+   from the card's centre, so the arrangement scales with the card and the
+   first frame lines up with the opening's last one on any screen.
+
+   Layers, far → near:  ground · paper · florals · scrim · portal (photo,
+                        then Our Story's linen) · portrait frame · near
+                        foreground · vignette
+
+   Off by default: only the full-motion script adds [data-live], which lays
+   the scene over the end of the opening and pins it. With reduced motion or
+   no JavaScript the page goes straight from the invitation to Our Story. */
+
+.passage { display: none; }
+
+.passage[data-live] {
+  display: block;
+  position: relative;
+  z-index: 2;                                        /* over the opening it continues */
+  margin-top: calc(-1 * max(100svh, 22rem));         /* = the opening's height */
+  pointer-events: none;                              /* the opening's own links stay usable */
+  visibility: hidden;                                /* shown from the hand-over on */
+}
+
+.passage__stage {
+  /* Where the camera pulls back to: a box in card widths, centred on --pull-* */
+  --pull-x: 0.3;
+  --pull-y: 0;
+  --pull-w: 3.6;
+  --pull-h: 2.05;
+  contain: strict;
+}
+
+.passage__layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* ── Keepsakes ───────────────────────────────────────────────────────────── */
+/* Placed by individual properties; the camera owns only the layers' transform */
+.ks {
+  position: absolute;
+  left: calc(50% + var(--x) * var(--card-w));
+  top:  calc(50% + var(--y) * var(--card-w));
+  width: calc(var(--w) * var(--card-w));
+  max-width: none;
+  height: auto;
+  translate: -50% -50%;
+  rotate: var(--r, 0deg);
+  user-select: none;
+  /* soft, short shadows: things lying on a table, lit from above-left */
+  filter: drop-shadow(calc(var(--card-w) * 0.006) calc(var(--card-w) * 0.012) calc(var(--card-w) * 0.014) rgba(6, 14, 9, 0.55));
+}
+
+.ks--envelope    { --x: -1.13; --y: -0.1;  --w: 0.6;   --r: -7deg; }
+.ks--handkerchief{ --x: 0.36;  --y: 0.33;  --w: 0.58;  --r: 13deg; }
+.ks--ribbon      { --x: -0.7;  --y: 0.7;   --w: 0.11;  --r: 64deg; }
+.ks--florals     { --x: -0.74; --y: -0.55; --w: 0.46;  --r: -10deg; }
+.ks--lilies      { --x: 0.52;  --y: 0.72;  --w: 0.5;   --r: -28deg; }
+.ks--seal        { --x: -0.63; --y: 0.36;  --w: 0.145; --r: 10deg; }
+.ks--orchid      { --x: 1.82;  --y: 0.5;   --w: 0.3;   --r: 18deg; }
+.ks--whites      { --x: 1.02;  --y: -0.68; --w: 0.42;  --r: 8deg; }
+.ks--portrait    { --x: 1.34;  --y: -0.03; --w: 0.78;  aspect-ratio: 575 / 815; }
+
+/* Nearest the lens: larger, softened as if out of focus */
+.passage__layer--near { z-index: 4; }
+.ks--near-left  { --x: -1.5; --y: 0.86;  --w: 0.62; --r: 150deg; filter: blur(calc(var(--card-w) * 0.006)) drop-shadow(0 1rem 1.2rem rgba(6, 14, 9, 0.5)); }
+.ks--near-right { --x: 2.15; --y: -0.9;  --w: 0.66; --r: 196deg; filter: blur(calc(var(--card-w) * 0.007)) drop-shadow(0 1rem 1.2rem rgba(6, 14, 9, 0.5)); }
+
+/* ── The portrait ────────────────────────────────────────────────────────── */
+/* Its window is the transparent centre of the lace oval (fractions measured
+   by scripts/build-passage-assets.py). The camera reads the same numbers. */
+.passage__layer--frame { z-index: 3; }
+.ks--portrait {
+  --hole-x: 0.2643;
+  --hole-y: 0.2160;
+  --hole-w: 0.48;
+  --hole-h: 0.5742;
+  filter: drop-shadow(calc(var(--card-w) * 0.006) calc(var(--card-w) * 0.014) calc(var(--card-w) * 0.018) rgba(6, 14, 9, 0.6));
+}
+.ks--portrait img { display: block; width: 100%; height: auto; }
+/* a gilt hairline just inside the lace, where the photograph is mounted */
+.ks__gilt {
+  position: absolute;
+  left:   calc((var(--hole-x) + var(--hole-w) * 0.035) * 100%);
+  top:    calc((var(--hole-y) + var(--hole-h) * 0.03) * 100%);
+  width:  calc(var(--hole-w) * 0.93 * 100%);
+  height: calc(var(--hole-h) * 0.94 * 100%);
+  border-radius: 50%;
+  border: calc(var(--card-w) * 0.006) solid #C9AE6F;
+  box-shadow:
+    0 0 0 1px rgba(60, 44, 12, 0.55),
+    inset 0 0 0 1px rgba(60, 44, 12, 0.45),
+    inset 0 calc(var(--card-w) * 0.01) calc(var(--card-w) * 0.03) rgba(20, 12, 4, 0.35);
+  z-index: 1;
+}
+
+/* What the window looks onto. Clipped to the window by the camera script. */
+.passage__portal {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  clip-path: ellipse(0 0 at 50% 50%);
+}
+/* Our Story's own paper, aligned to its foot so it runs on into the section */
+.passage__portal .passage__memory {      /* outranks .section--emboss, loaded later */
+  position: absolute;
+  inset: 0;
+  background-color: var(--tone-bg);
+  background-position: left bottom, right bottom, center bottom;
+}
+.passage__photo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  overflow: hidden;
+  border-radius: 50%;
+}
+.passage__photo img,
+.passage__photo .frame__placeholder { width: 100%; height: 100%; object-fit: cover; display: flex; }
+.passage__photo .frame__placeholder { gap: 0.35rem; padding: 0; }
+.passage__photo .frame__placeholder .label { max-width: 62%; font-size: 0.4375rem; line-height: 1.7; letter-spacing: 0.24em; }
+.passage__photo .frame__placeholder-mark { font-size: 1.1rem; }
+
+/* ── Light ───────────────────────────────────────────────────────────────── */
+.passage__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  background: radial-gradient(ellipse 38% 52% at 50% 50%, transparent 40%, rgba(8, 16, 11, 0.7) 100%);
+}
+.passage__vignette { z-index: 5; }
+
+.passage__cue { opacity: 1; visibility: visible; }
+
+/* ── Portrait screens: the portrait lies below the card ──────────────────── */
+@media (max-aspect-ratio: 4 / 5) {
+  .passage__stage { --pull-x: 0; --pull-y: 0.58; --pull-w: 2.15; --pull-h: 4.7; }
+
+  .ks--envelope    { --x: -0.3;  --y: -1.2;  --w: 0.62; }
+  .ks--florals     { --x: 0.5;   --y: -0.98; --w: 0.5;  --r: 8deg; }
+  .ks--handkerchief{ --x: 0.36;  --y: 0.64;  --w: 0.6; }
+  .ks--seal        { --x: -0.55; --y: 0.8;   --w: 0.17; }
+  .ks--ribbon      { --x: -0.66; --y: 1.62;  --w: 0.09; --r: 18deg; }
+  .ks--lilies      { --x: 0.66;  --y: 1.26;  --w: 0.46; --r: -36deg; }
+  .ks--portrait    { --x: 0.04;  --y: 2.0;   --w: 0.8; }
+  .ks--whites      { --x: -0.62; --y: 2.62;  --w: 0.5;  --r: -6deg; }
+  .ks--orchid      { --x: 0.7;   --y: 2.7;   --w: 0.32; }
+  .ks--near-left   { --x: -0.9;  --y: -1.75; --w: 0.7; }
+  .ks--near-right  { --x: 1.0;   --y: 3.1;   --w: 0.75; }
+}
