@@ -113,6 +113,8 @@
   background-color: var(--tone-bg);
   background-position: left bottom, right bottom, center bottom;
 }
+.passage__portal .passage__memory,
+.passage__photo { will-change: transform; }      /* own layers: the moving window only re-cuts its edge */
 .passage__photo {
   position: absolute;
   left: 0;

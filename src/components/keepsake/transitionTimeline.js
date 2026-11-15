@@ -15,8 +15,8 @@
 import { gsap, ScrollTrigger, DESKTOP } from '../../lib/motion'
 
 const SCROLL_LENGTH = { desktop: 1.35, mobile: 1.15 }   // viewport-heights each move lasts
-const DEPTHS = { paper: 0.52, label: 0.6 }             // fractions of the full zoom where
-                                                        // the close-up paper / the lettering give way
+const PAPER = [0.36, 0.8]   // fractions of the full zoom over which the close-up paper takes over,
+                             // before the once-drawn flat-lay is magnified far enough to look soft
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
 const smooth = (a, b, v) => { const x = clamp01((v - a) / (b - a)); return x * x * (3 - 2 * x) }
@@ -84,17 +84,36 @@ export function buildTransition(root, { from, to }) {
     const fy = p.y + (m.cy - p.y) * wide
     const turn = -p.tilt * (1 - wide)
 
-    for (const { el, depth: d } of layers) {
+    if (!warming) for (const { el, depth: d } of layers) {
       const kd = Math.pow(k, d)
       el.style.transform =
         `translate3d(${m.vw / 2}px, ${m.vh / 2}px, 0) rotate(${turn}deg) scale(${kd}) translate(${-fx}px, ${-fy}px)`
     }
 
-    const close = smooth(DEPTHS.paper, 0.92, depth)
-    paperFrom.style.opacity = out ? close : 0
-    paperTo.style.opacity   = out ? 0 : close
+    // opacity only, on layers of their own: nothing is repainted
+    const close = smooth(PAPER[0], PAPER[1], depth)
+    paperFrom.style.opacity = out ? close * 0.999 : 0
+    paperTo.style.opacity   = out ? 0 : close * 0.999
     vignette.style.opacity  = 1 - close
-    stage.style.setProperty('--fl-label', 1 - smooth(0.22, DEPTHS.label, depth))
+  }
+
+  // ── Keeping it cheap ────────────────────────────────────────────────────
+  // The flat-lay is drawn once, at its natural size, into two GPU layers that
+  // the camera then only moves. A browser fixes the resolution of such a layer
+  // the first time it draws it, so each time the scene comes on screen the
+  // layers are held square-on for a moment before the camera takes them. The
+  // guest sees none of it: the scene always arrives behind its close-up paper
+  // (kept a hair short of opaque, or the browser would skip drawing what is
+  // underneath). Off screen the layers are not drawn at all.
+  const WARM_MS = 260
+  let warming = false, warmId = 0
+  const setNear = (near) => {
+    root.classList.toggle('is-near', near)
+    clearTimeout(warmId)
+    warming = near
+    if (!near) return
+    for (const { el } of layers) el.style.transform = 'none'
+    warmId = setTimeout(() => { warming = false; render() }, WARM_MS)
   }
 
   const length = () => m.vh * (window.matchMedia(DESKTOP).matches ? SCROLL_LENGTH.desktop : SCROLL_LENGTH.mobile)
@@ -112,10 +131,16 @@ export function buildTransition(root, { from, to }) {
       scrub: 0.6,
       anticipatePin: 1,
       invalidateOnRefresh: true,
-      // layers are only promoted while the scene is on screen
-      onToggle: (self) => root.classList.toggle('is-active', self.isActive),
       onRefresh: render,
     },
+  })
+
+  // "near": any part of the scene is on screen
+  const near = ScrollTrigger.create({
+    start: () => tl.scrollTrigger.start - m.vh,
+    end: () => tl.scrollTrigger.end + m.vh,
+    onToggle: (self) => setNear(self.isActive),
+    onRefresh: (self) => { if (self.isActive !== root.classList.contains('is-near')) setNear(self.isActive) },
   })
 
   tl
@@ -127,7 +152,9 @@ export function buildTransition(root, { from, to }) {
 
   return () => {
     ScrollTrigger.removeEventListener('refreshInit', refreshInit)
+    clearTimeout(warmId)
+    near.kill()
     delete root.dataset.live
-    root.classList.remove('is-active')
+    root.classList.remove('is-near')
   }
 }
