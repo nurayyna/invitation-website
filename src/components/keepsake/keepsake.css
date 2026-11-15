@@ -1,0 +1,247 @@
+/* ── Keepsake transitions: the site as one flat-lay ───────────────────────────
+   Between sections the camera pulls back to a table laid with the whole
+   invitation suite — one piece of stationery per section — and moves in on
+   the next piece. The arrangement lives on a "board" with a fixed shape
+   (landscape or portrait), fitted to the screen; everything on it is placed
+   in board percentages and sized in board widths (cqw), so the composition
+   is identical on every screen.
+
+   Layers, far → near:  ground · stationery · florals & keepsakes ·
+                        close-up paper (from / to) · vignette
+
+   Off by default: only the full-motion script adds [data-live]. With reduced
+   motion or no JavaScript the sections simply follow one another. */
+
+.kt { display: none; }
+.kt[data-live] { display: block; pointer-events: none; }
+
+.kt__stage {
+  position: relative;
+  height: 100svh;
+  min-height: 22rem;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--forest);
+  contain: strict;
+  --fl-label: 1;
+}
+
+.kt__layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform-origin: 0 0;
+}
+.kt.is-active .kt__layer { will-change: transform; }
+
+/* The paper of the section before / after, filling the view at either end */
+.kt .kt__paper {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0;
+  opacity: 0;
+}
+.kt .kt__paper--to.section--emboss { background-position: left bottom, right bottom, center bottom; }
+.kt__paper--garden  { background: var(--forest); }
+.kt .kt__paper--closing { --tone-bg: var(--forest-deep); }
+.kt__vignette { z-index: 3; }
+
+/* ── The board ───────────────────────────────────────────────────────────── */
+.fl-board {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100vw, 160svh);
+  aspect-ratio: 16 / 10;
+  translate: -50% -50%;
+  container-type: size;
+}
+
+.fl-item {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top:  calc(var(--y) * 1%);
+  width: calc(var(--w) * 1cqw);
+  max-width: none;
+  height: auto;
+  translate: -50% -50%;
+  rotate: calc(var(--r) * 1deg);
+  user-select: none;
+  filter: drop-shadow(0.12cqw 0.3cqw 0.35cqw rgba(4, 10, 6, 0.6));
+}
+
+/* ── Stationery ──────────────────────────────────────────────────────────── */
+.fl-piece { aspect-ratio: 0.72; color: var(--ivory); --ink-accent: #D9C08A; }
+.fl-piece__body { display: block; width: 100%; height: 100%; }
+.fl-piece__paper {
+  position: absolute;
+  inset: 0;
+  background-color: var(--paper);
+  background-image: var(--grain);
+  background-blend-mode: soft-light;
+}
+/* a gold hairline set in from the edge, as on the invitation card */
+.fl-piece__paper::after {
+  content: '';
+  position: absolute;
+  inset: 5.5%;
+  border: 1px solid var(--gold);
+  border-radius: inherit;
+  opacity: 0.75;
+}
+
+/* dark cards are mounted on a slightly larger ivory sheet, so they stand
+   off the table the way layered stationery does */
+.fl-piece--garden::before,
+.fl-piece--events::before,
+.fl-piece--rsvp::before,
+.fl-piece--closing::before {
+  content: '';
+  position: absolute;
+  inset: -3.2%;
+  rotate: 1.4deg;
+  background-color: var(--ivory);
+  background-image: var(--grain), linear-gradient(140deg, #FCF8F0 0%, var(--ivory) 45%, var(--ivory-shade) 100%);
+  background-blend-mode: soft-light, normal;
+}
+.fl-piece--events::before  { border-radius: 50% 50% 0 0 / 26% 26% 0 0; rotate: -1.2deg; }
+.fl-piece--closing::before { border-radius: 50%; inset: -4%; rotate: 0deg; }
+.fl-piece--rsvp::before    { rotate: -1.6deg; }
+
+/* die-cut shapes */
+.fl-piece--garden .fl-piece__paper,
+.fl-piece--rsvp .fl-piece__paper,
+.fl-piece--venue .fl-piece__paper {                      /* scooped corners */
+  --c: 1.5cqw;
+  mask: radial-gradient(var(--c) at var(--c) var(--c), #0000 98%, #000) calc(var(--c) * -1) calc(var(--c) * -1);
+}
+.fl-piece--events .fl-piece__paper  { border-radius: 50% 50% 0 0 / 26% 26% 0 0; }   /* arched */
+.fl-piece--closing .fl-piece__paper { border-radius: 50%; }                         /* oval */
+
+.fl-piece--story      { aspect-ratio: 420 / 747; color: var(--forest); --ink-accent: var(--burgundy); }
+.fl-piece--garden     { --paper: var(--forest); }
+.fl-piece--invitation { aspect-ratio: 354 / 539; }
+.fl-piece--events     { --paper: var(--forest); aspect-ratio: 0.62; }
+.fl-piece--venue      { --paper: var(--sage); color: var(--forest-deep); --ink-accent: var(--burgundy); }
+.fl-piece--dress-code { aspect-ratio: 420 / 661; color: var(--forest); --ink-accent: var(--burgundy); }
+.fl-piece--rsvp       { --paper: var(--forest); aspect-ratio: 0.8; }
+.fl-piece--closing    { --paper: var(--forest-deep); aspect-ratio: 0.8; }
+.fl-piece--garden .fl-piece__paper,
+.fl-piece--events .fl-piece__paper,
+.fl-piece--rsvp .fl-piece__paper { box-shadow: inset 0 0 2.5cqw rgba(0, 0, 0, 0.3); }
+
+/* lettering: gone by the time the camera is close (see transitionTimeline) */
+.fl-piece__label {
+  position: absolute;
+  inset: 14% 12%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55cqw;
+  text-align: center;
+  opacity: var(--fl-label);
+}
+.fl-piece__eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.5cqw;
+  line-height: 1.5;
+  letter-spacing: 0.22em;
+  margin-right: -0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.fl-piece__title {
+  font-family: var(--font-script);
+  font-size: 2.15cqw;
+  line-height: 1.05;
+}
+.fl-piece__rule {
+  display: flex;
+  align-items: center;
+  gap: 0.4cqw;
+  width: 46%;
+  color: var(--ink-accent);
+}
+.fl-piece__rule::before,
+.fl-piece__rule::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.8; }
+.fl-piece__rule i { font-style: normal; font-size: 0.4cqw; line-height: 1; }
+
+.fl-piece--garden .fl-piece__eyebrow { font-size: 0.56cqw; }
+.fl-piece--closing .fl-piece__title  { font-size: 1.55cqw; line-height: 1.15; }
+.fl-piece--events .fl-piece__title,
+.fl-piece--venue .fl-piece__title    { font-size: 1.9cqw; }
+.fl-piece--story .fl-piece__label,
+.fl-piece--dress-code .fl-piece__label { inset: 22% 20%; }
+.fl-piece--events .fl-piece__label   { inset: 24% 12% 12%; }
+
+/* the Garden's painting, framed in gilt */
+.fl-piece__painting {
+  width: 100%;
+  padding: 0.3cqw;
+  margin-bottom: 0.5cqw;
+  background: linear-gradient(135deg, #D9C48E 0%, #9C8247 22%, #E6D5A4 48%, #8E743D 74%, #CDB57A 100%);
+  box-shadow: 0 0 0 1px rgba(60, 44, 12, 0.55), 0 0.3cqw 0.6cqw rgba(0, 0, 0, 0.4);
+}
+.fl-piece__painting img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+
+/* ── The invitation card, in miniature ───────────────────────────────────── */
+/* The card is drawn in --u units, so it only needs its width; the minimum
+   font sizes that protect the full-size card are lifted here. */
+.fl-card {
+  --card-ar: 1.42;
+  --card-w: calc(var(--w) * 1cqw);
+  --u: calc(var(--card-w) / 100);
+  aspect-ratio: var(--card-ar);
+  color: var(--forest);
+  filter: none;
+}
+.fl-card .card-wrap { will-change: auto; }
+.fl-card .card__monogram { font-size: calc(var(--u) * 2.5); }
+.fl-card .card__eyebrow  { font-size: calc(var(--u) * 1.5); }
+.fl-card .card__rule i   { font-size: calc(var(--u) * 1.1); }
+.fl-card .card__date     { font-size: calc(var(--u) * 2.25); }
+.fl-card .card__venue    { font-size: calc(var(--u) * 2.9); }
+
+/* ── The couple's portrait ───────────────────────────────────────────────── */
+.fl-portrait { aspect-ratio: 300 / 425; }
+.fl-portrait > img { position: relative; display: block; width: 100%; height: 100%; }
+.fl-portrait__photo {
+  position: absolute;
+  inset: 20% 24% 20% 25%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #C3C9AE 0%, var(--sage) 55%, #8D9577 100%);
+  box-shadow: 0 0 0 0.12cqw #C9AE6F;
+}
+.fl-portrait__photo img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Portrait screens ────────────────────────────────────────────────────── */
+@media (max-aspect-ratio: 4 / 5) {
+  .fl-board { width: min(100vw, 54svh); aspect-ratio: 9 / 17; }
+  .fl-item {
+    left: calc(var(--px) * 1%);
+    top:  calc(var(--py) * 1%);
+    width: calc(var(--pw) * 1cqw);
+    rotate: calc(var(--pr) * 1deg);
+    filter: drop-shadow(0.25cqw 0.6cqw 0.7cqw rgba(4, 10, 6, 0.6));
+  }
+  .fl-item[data-off-portrait] { display: none; }
+
+  .fl-card { --card-ar: 0.7; --card-w: calc(var(--pw) * 1cqw); --u: calc(var(--card-w) / 58); filter: none; }
+
+  .fl-piece__label    { gap: 1.2cqw; }
+  .fl-piece__eyebrow  { font-size: 1.1cqw; }
+  .fl-piece__title    { font-size: 4.7cqw; }
+  .fl-piece__rule     { gap: 0.9cqw; }
+  .fl-piece__rule i   { font-size: 0.9cqw; }
+  .fl-piece--garden .fl-piece__eyebrow { font-size: 1.2cqw; }
+  .fl-piece--closing .fl-piece__title  { font-size: 3.4cqw; }
+  .fl-piece--events .fl-piece__title,
+  .fl-piece--venue .fl-piece__title    { font-size: 4.1cqw; }
+  .fl-piece--garden .fl-piece__paper,
+  .fl-piece--rsvp .fl-piece__paper,
+  .fl-piece--venue .fl-piece__paper { --c: 3.2cqw; }
+  .fl-piece__painting { padding: 0.6cqw; margin-bottom: 1cqw; }
+}
